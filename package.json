@@ -1,0 +1,23 @@
+{
+  "name": "wfnodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/appium-adb": "^9.4.0",
+    "@types/node": "^18.6.1",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@u4/adbkit": "^4.1.1",
+    "@u4/opencv4nodejs": "^6.2.1",
+    "appium-adb": "^9.10.1",
+    "jimp": "^0.16.1"
+  }
+}
