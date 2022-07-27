@@ -3,41 +3,7 @@ import { createClient } from '@u4/adbkit';
 import { execSync } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { Stream, Readable } from 'node:stream';
-
-function getSdkPath() {
-    let sdkRoot = process.env.ANDROID_HOME;
-    if (!sdkRoot) {
-        switch (process.platform) {
-            case 'win32':
-                sdkRoot = execSync('where.exe adb').toString().trim();
-                break;
-            case 'darwin':
-                sdkRoot = execSync('which adb').toString().trim();
-                break;
-            case 'linux':
-                sdkRoot = execSync('which adb').toString().trim();
-                break;
-            default:
-                throw new Error('ANDROID_HOME is not set');
-        }
-    }
-    return join(dirname(sdkRoot), '..');
-}
-
-async function loadDataFromStream(stream: Readable) {
-    return new Promise<Buffer>((resolve, reject) => {
-        const chunks: Buffer[] = [];
-        stream.on('data', (chunk) => {
-            chunks.push(chunk);
-        }).on('end', () => {
-            resolve(Buffer.concat(chunks));
-        }).on('error', (err: unknown) => {
-            reject(err);
-        });
-    });
-}
-
+import { loadDataFromStream } from './utils/stream';
 
 async function main() {
     // const img = await cv.imreadAsync('./test.jpg');
