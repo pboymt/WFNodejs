@@ -19,6 +19,7 @@ interface ScreenProperties {
     width: number;
     height: number;
     orientation: number;
+    density: number;
 }
 
 server.get<'/screencap', unknown, unknown, unknown, ServerQuery>('/screencap', async (req, res) => {
@@ -49,24 +50,24 @@ const REGEXP_ORIENTATION = /mCurRotation=(?<orientation>\d+)/;
 const REGEXP_SCREEN_SIZE = /Physical size: (?<width>\d+)x(?<height>\d+)/;
 const REGEXP_SCREEN_DENSITY = /Physical density: (?<density>\d+)/;
 
-async function screen(device: DeviceClient) {
+async function screen(device: DeviceClient): Promise<ScreenProperties> {
     const dumpsys = await device.execOut('dumpsys window displays', 'utf-8');
     const m_orientation = REGEXP_ORIENTATION.exec(dumpsys);
-    let orientation = 0;
+    let orientation = -1;
     if (m_orientation && m_orientation.groups && m_orientation.groups.orientation) {
         orientation = parseInt(m_orientation.groups.orientation);
     }
     const wm_size = await device.execOut('wm size', 'utf-8');
     const m_screen_size = REGEXP_SCREEN_SIZE.exec(wm_size);
-    let width = 0;
-    let height = 0;
+    let width = -1;
+    let height = -1;
     if (m_screen_size && m_screen_size.groups && m_screen_size.groups.width && m_screen_size.groups.height) {
         width = parseInt(m_screen_size.groups.width);
         height = parseInt(m_screen_size.groups.height);
     }
     const wm_density = await device.execOut('wm density', 'utf-8');
     const m_screen_density = REGEXP_SCREEN_DENSITY.exec(wm_density);
-    let density = 0;
+    let density = -1;
     if (m_screen_density && m_screen_density.groups && m_screen_density.groups.density) {
         density = parseInt(m_screen_density.groups.density);
     }

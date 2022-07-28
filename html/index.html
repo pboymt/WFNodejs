@@ -24,9 +24,10 @@
                         请选择设备
                     </option>
                 </select>
+                <button onclick="cropper.refreshDeviceList()">刷新</button>
             </div>
             <div class="left-panel-item">
-                <button id="screenshot">截图</button>
+                <button id="screenshot" onclick="cropper.fetchScreencap()">截图</button>
             </div>
         </div>
         <div class="right-panel">

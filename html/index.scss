@@ -1,0 +1,89 @@
+body {
+    margin: 0;
+}
+
+div.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    width: 100vw;
+    height: 100vh;
+    background-color: pink;
+    overflow: hidden;
+
+    div.left-panel {
+        display: flex;
+        flex-shrink: 0;
+        flex-direction: column;
+        justify-content: stretch;
+        width: 20rem;
+        background-color: aquamarine;
+        overflow: hidden;
+
+        div.left-panel-header {
+            margin: .5rem .5rem;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            height: 3rem;
+            background-color: lightblue;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+
+        div.left-panel-item {
+            padding: .5rem .5rem;
+            line-height: 1.5rem;
+            display: flex;
+            flex-direction: row;
+            justify-content: stretch;
+            align-items: stretch;
+            background-color: lightblue;
+
+            label {
+                margin-right: .5rem;
+            }
+
+            select {
+                flex: 1;
+                height: 1.5rem;
+                width: 100%;
+                line-height: 1.5rem;
+                padding: 0 .5rem;
+            }
+
+            button {
+                flex-grow: 1;
+                flex-basis: 100%;
+                height: 1.5rem;
+                // width: 100%;
+                line-height: 1.5rem;
+                padding: 0 .5rem;
+
+                &:not(:first-child) {
+                    flex-grow: 0;
+                    flex-basis: 4rem;
+                }
+            }
+        }
+    }
+
+    div.right-panel {
+        display: flex;
+        position: relative;
+        flex-grow: 1;
+        flex-shrink: 0;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+
+        canvas {
+            display: block;
+            max-width: calc(100% - 2rem);
+            max-height: calc(100% - 2rem);
+            overflow: hidden;
+        }
+    }
+
+}
