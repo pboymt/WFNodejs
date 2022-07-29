@@ -35,47 +35,84 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var _this = this;
-function fetchScreencap() {
-    return __awaiter(this, void 0, void 0, function () {
-        var device, url, res, blob, canvas, img_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    device = document.querySelector('#selected-device').value;
-                    url = new URL('/screencap', location.origin);
-                    url.searchParams.append('device', device);
-                    return [4 /*yield*/, fetch(url)];
-                case 1:
-                    res = _a.sent();
-                    return [4 /*yield*/, res.blob()];
-                case 2:
-                    blob = _a.sent();
-                    console.log(blob);
-                    canvas = document.querySelector('canvas');
-                    if (canvas) {
-                        img_1 = new Image();
-                        img_1.src = URL.createObjectURL(blob);
-                        img_1.addEventListener('load', function () {
-                            var ctx = canvas.getContext('2d');
-                            canvas.width = img_1.width;
-                            canvas.height = img_1.height;
-                            ctx.drawImage(img_1, 0, 0);
-                        });
-                    }
-                    return [2 /*return*/];
-            }
-        });
-    });
-}
+var ChooseStage;
+(function (ChooseStage) {
+    ChooseStage[ChooseStage["BLUR"] = 0] = "BLUR";
+    ChooseStage[ChooseStage["START"] = 1] = "START";
+    ChooseStage[ChooseStage["END"] = 2] = "END";
+})(ChooseStage || (ChooseStage = {}));
 var Cropper = /** @class */ (function () {
     function Cropper(_a) {
-        var canvas = _a.canvas, device_list = _a.device_list;
+        var canvas = _a.canvas, device_list = _a.device_list, preview = _a.preview, cursor_x = _a.cursor_x, cursor_y = _a.cursor_y;
         this.device_list = [];
+        this.ctl_cursor = [0, 0];
+        this.ctl_choosing = ChooseStage.BLUR;
+        this.ctl_choose_start_point = [0, 0];
+        this.ctl_choose_end_point = [0, 0];
         this.el_device_list = device_list;
+        this.el_cursor_x = cursor_x;
+        this.el_cursor_y = cursor_y;
         this.el_canvas = canvas;
-        this.ctx = canvas.getContext('2d');
+        this.el_ctx = canvas.getContext('2d');
         this.img = new Image();
+        this.ctl_canvas = document.createElement('canvas');
+        this.ctl_ctx = this.ctl_canvas.getContext('2d');
+        this.pv_canvas = preview;
+        this.pv_ctx = preview.getContext('2d');
+        this.initCanvas();
     }
+    /**
+     * 初始化Canvas
+     */
+    Cropper.prototype.initCanvas = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                // Element
+                this.el_ctx.globalCompositeOperation = 'destination-out';
+                this.el_canvas.width = 100;
+                this.el_canvas.height = 100;
+                // Control
+                this.ctl_canvas.width = 100;
+                this.ctl_canvas.height = 100;
+                // Element Event
+                this.el_canvas.addEventListener('mousemove', function (e) {
+                    var rect = _this.el_canvas.getBoundingClientRect();
+                    var _a = [e.offsetX < 0 ? 0 : e.offsetX, e.offsetY < 0 ? 0 : e.offsetY], ox = _a[0], oy = _a[1];
+                    var x = Math.round(ox / rect.width * _this.el_canvas.width);
+                    var y = Math.round(oy / rect.height * _this.el_canvas.height);
+                    _this.ctl_cursor = [x, y];
+                    _this.el_cursor_x.textContent = "".concat(x);
+                    _this.el_cursor_y.textContent = "".concat(y);
+                });
+                this.el_canvas.addEventListener('click', function (e) {
+                    switch (_this.ctl_choosing) {
+                        case ChooseStage.BLUR:
+                            _this.ctl_choose_start_point = _this.ctl_cursor;
+                            _this.ctl_choosing = ChooseStage.START;
+                            break;
+                        case ChooseStage.START:
+                            _this.ctl_choose_end_point = _this.ctl_cursor;
+                            _this.ctl_choosing = ChooseStage.END;
+                            break;
+                        case ChooseStage.END:
+                            _this.ctl_choose_start_point = _this.ctl_cursor;
+                            _this.ctl_choosing = ChooseStage.START;
+                            break;
+                    }
+                });
+                this.el_canvas.addEventListener('contextmenu', function (e) {
+                    e.preventDefault();
+                    _this.ctl_choosing = ChooseStage.BLUR;
+                });
+                this.drawCanvas();
+                return [2 /*return*/];
+            });
+        });
+    };
+    /**
+     * 获取设备列表
+     */
     Cropper.prototype.fetchDeviceList = function () {
         return __awaiter(this, void 0, void 0, function () {
             var res, list;
@@ -88,34 +125,40 @@ var Cropper = /** @class */ (function () {
                     case 2:
                         list = _a.sent();
                         if (list instanceof Array) {
-                            return [2 /*return*/, list];
+                            this.device_list = list;
                         }
                         else {
-                            return [2 /*return*/, []];
+                            this.device_list = [];
                         }
                         return [2 /*return*/];
                 }
             });
         });
     };
-    Cropper.prototype.setDeviceList = function (list) {
+    /**
+     * 设置设备列表
+     */
+    Cropper.prototype.setDeviceList = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var option_list, _i, list_1, device, option;
-            var _a;
-            return __generator(this, function (_b) {
+            var option_list, _i, _a, device, option;
+            var _b;
+            return __generator(this, function (_c) {
                 option_list = [];
-                for (_i = 0, list_1 = list; _i < list_1.length; _i++) {
-                    device = list_1[_i];
+                for (_i = 0, _a = this.device_list; _i < _a.length; _i++) {
+                    device = _a[_i];
                     option = document.createElement('option');
                     option.value = device.id;
                     option.textContent = device.id;
                     option_list.push(option);
                 }
-                (_a = this.el_device_list).replaceChildren.apply(_a, option_list);
+                (_b = this.el_device_list).replaceChildren.apply(_b, option_list);
                 return [2 /*return*/];
             });
         });
     };
+    /**
+     * 刷新设备列表
+     */
     Cropper.prototype.refreshDeviceList = function () {
         return __awaiter(this, void 0, void 0, function () {
             var list;
@@ -124,12 +167,16 @@ var Cropper = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.fetchDeviceList()];
                     case 1:
                         list = _a.sent();
-                        this.setDeviceList(list);
+                        this.setDeviceList();
                         return [2 /*return*/];
                 }
             });
         });
     };
+    /**
+     * 设置图像
+     * @param src 图片地址
+     */
     Cropper.prototype.setImage = function (src) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -138,13 +185,85 @@ var Cropper = /** @class */ (function () {
                         _this.img.addEventListener('load', function () {
                             _this.el_canvas.width = _this.img.width;
                             _this.el_canvas.height = _this.img.height;
-                            _this.ctx.drawImage(_this.img, 0, 0);
+                            _this.ctl_canvas.width = _this.img.width;
+                            _this.ctl_canvas.height = _this.img.height;
+                            _this.ctl_choosing = ChooseStage.BLUR;
                             resolve();
                         }, { once: true });
                         _this.img.src = src;
                     })];
             });
         });
+    };
+    Cropper.prototype.drawCanvas = function () {
+        var _this = this;
+        console.log('drawCanvas');
+        // 清空画布
+        this.ctl_ctx.clearRect(0, 0, this.ctl_canvas.width, this.ctl_canvas.height);
+        this.el_ctx.clearRect(0, 0, this.el_canvas.width, this.el_canvas.height);
+        // 描绘实时光标
+        var _a = this.ctl_cursor, x = _a[0], y = _a[1];
+        this.ctl_ctx.lineWidth = 2;
+        this.ctl_ctx.beginPath();
+        this.ctl_ctx.strokeStyle = '#888888';
+        this.ctl_ctx.moveTo(x - 20, y - 20);
+        this.ctl_ctx.lineTo(x + 20, y - 20);
+        this.ctl_ctx.lineTo(x + 20, y + 20);
+        this.ctl_ctx.lineTo(x - 20, y + 20);
+        this.ctl_ctx.closePath();
+        this.ctl_ctx.stroke();
+        this.ctl_ctx.beginPath();
+        this.ctl_ctx.strokeStyle = '#000000';
+        this.ctl_ctx.moveTo(x, 0);
+        this.ctl_ctx.lineTo(x, this.ctl_canvas.height);
+        this.ctl_ctx.moveTo(0, y);
+        this.ctl_ctx.lineTo(this.ctl_canvas.width, y);
+        this.ctl_ctx.stroke();
+        this.ctl_ctx.beginPath();
+        this.ctl_ctx.strokeStyle = '#ffffff';
+        this.ctl_ctx.moveTo(x - 2, 0);
+        this.ctl_ctx.lineTo(x - 2, this.ctl_canvas.height);
+        this.ctl_ctx.moveTo(0, y - 2);
+        this.ctl_ctx.lineTo(this.ctl_canvas.width, y - 2);
+        this.ctl_ctx.stroke();
+        this.ctl_ctx.moveTo(x + 2, 0);
+        this.ctl_ctx.lineTo(x + 2, this.ctl_canvas.height);
+        this.ctl_ctx.moveTo(0, y + 2);
+        this.ctl_ctx.lineTo(this.ctl_canvas.width, y + 2);
+        this.ctl_ctx.stroke();
+        // 描绘选择框
+        switch (this.ctl_choosing) {
+            case ChooseStage.BLUR:
+                break;
+            case ChooseStage.START: {
+                var _b = this.ctl_choose_start_point, sx = _b[0], sy = _b[1];
+                this.ctl_ctx.strokeStyle = '#ff0000';
+                this.ctl_ctx.lineWidth = 2;
+                this.ctl_ctx.beginPath();
+                this.ctl_ctx.moveTo(sx, sy);
+                this.ctl_ctx.rect(sx, sy, x - sx, y - sy);
+                this.ctl_ctx.stroke();
+                break;
+            }
+            case ChooseStage.END: {
+                var _c = this.ctl_choose_start_point, sx = _c[0], sy = _c[1];
+                var _d = this.ctl_choose_end_point, ex = _d[0], ey = _d[1];
+                this.ctl_ctx.strokeStyle = '#ff0000';
+                this.ctl_ctx.lineWidth = 2;
+                this.ctl_ctx.beginPath();
+                this.ctl_ctx.moveTo(sx, sy);
+                this.ctl_ctx.rect(sx, sy, ex - sx, ey - sy);
+                this.ctl_ctx.stroke();
+                break;
+            }
+        }
+        // 填充画布
+        this.el_ctx.drawImage(this.img, 0, 0);
+        this.el_ctx.drawImage(this.ctl_canvas, 0, 0);
+        this.pv_ctx.clearRect(0, 0, this.pv_canvas.width, this.pv_canvas.height);
+        // 光标预览
+        this.pv_ctx.drawImage(this.img, x - 10, y - 10, 20, 20, 0, 0, 100, 100);
+        requestAnimationFrame(function () { return _this.drawCanvas(); });
     };
     Cropper.prototype.fetchScreencap = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -175,7 +294,10 @@ var Cropper = /** @class */ (function () {
 }());
 var cropper = new Cropper({
     canvas: document.querySelector('#screen'),
-    device_list: document.querySelector('#selected-device')
+    device_list: document.querySelector('#selected-device'),
+    preview: document.querySelector('#preview'),
+    cursor_x: document.querySelector('#cursor-x'),
+    cursor_y: document.querySelector('#cursor-y')
 });
 (function () { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
