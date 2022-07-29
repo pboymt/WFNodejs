@@ -24,10 +24,11 @@ interface ScreenProperties {
 
 server.get<'/screencap', unknown, unknown, unknown, ServerQuery>('/screencap', async (req, res) => {
     let device: DeviceClient | undefined;
+    const list = await adb.listDevices();
     if (req.query.device) {
-        device = adb.getDevice(req.query.device);
+        const exists = list.findIndex(d => d.id === req.query.device) !== -1;
+        if (exists) device = adb.getDevice(req.query.device);
     } else {
-        const list = await adb.listDevices();
         if (list.length) {
             const chooseNoneOffline = list.find(d => d.type !== 'offline');
             if (chooseNoneOffline) {
@@ -76,8 +77,10 @@ async function screen(device: DeviceClient): Promise<ScreenProperties> {
 
 server.get<'/properties', unknown, unknown, unknown, ServerQuery>('/properties', async (req, res) => {
     let device: DeviceClient | undefined;
+    const list = await adb.listDevices();
     if (req.query.device) {
-        device = adb.getDevice(req.query.device);
+        const exists = list.findIndex(d => d.id === req.query.device) !== -1;
+        if (exists) device = adb.getDevice(req.query.device);
     } else {
         const list = await adb.listDevices();
         if (list.length) {
