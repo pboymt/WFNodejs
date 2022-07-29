@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "preinstall": "node ./check-opencv.js",
-    "sass": "sass html/index.scss html/index.css --watch"
+    "dev": "tsc -p tsconfig.json --watch",
+    "sass": "sass html/index.scss html/index.css --watch",
+    "html": "tsc --watch --outFile html/index.js html/index.ts"
   },
   "keywords": [],
   "author": "",
