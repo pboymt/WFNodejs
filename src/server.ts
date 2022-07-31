@@ -1,6 +1,6 @@
 import { createClient, DeviceClient } from '@u4/adbkit';
 import Express from 'express';
-import { loadDataFromStream } from './utils/stream';
+import { loadDataFromStream } from './core/utils/stream';
 
 const adb = createClient();
 const server = Express();
