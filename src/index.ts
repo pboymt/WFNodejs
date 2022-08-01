@@ -10,13 +10,17 @@ program
     .version('0.0.1')
     .description('WFNodejs is a tool for Android device to play World Flipper automatically.');
 
+program
+    .command('play')
+
 interface CShotOptions {
     device?: string;
     saveDir: string;
 }
 
 program
-    .command('shot [filename]')
+    .command('shot')
+    .argument('[filename]', 'filename of screenshot', (v, p) => v ?? moment().format('YYYYMMDD-HHmmss'))
     .option('-d, --device <id>', 'device id')
     .option('-s, --save-dir <dir>', 'save directory', join(process.cwd(), 'screenshot'))
     .description('Take a screenshot and save it to a file.')
