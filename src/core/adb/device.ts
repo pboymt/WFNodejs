@@ -1,13 +1,20 @@
 import { Client, DeviceClient } from "@u4/adbkit";
+import { imdecodeAsync, Mat } from "@u4/opencv4nodejs";
 import { loadDataFromStream } from "../utils/stream";
 
 const DISPLAY_REGEXP = /DisplayViewport\{.*valid=true, .*orientation=(?<orientation>\d+), .*deviceWidth=(?<width>\d+), .*deviceHeight=(?<height>\d+)/;
 
 export class Device extends DeviceClient {
 
-    async screenshot(): Promise<Buffer> {
+    async screenshot(mat?: true): Promise<Mat>;
+    async screenshot(mat?: false): Promise<Buffer>;
+    async screenshot(mat: boolean = true): Promise<Buffer | Mat> {
         const stream = await this.screencap();
-        return await loadDataFromStream(stream);
+        const data = await loadDataFromStream(stream);
+        if (mat) {
+            return await imdecodeAsync(data);
+        }
+        return data;
     }
 
     async keyevent(keyCode: number): Promise<void> {
@@ -84,6 +91,10 @@ export class Device extends DeviceClient {
             package_name,
             activity
         }
+    }
+
+    async toggleScreen(): Promise<void> {
+        await this.execOut([`input`, `keyevent`, `26`]);
     }
 
 }

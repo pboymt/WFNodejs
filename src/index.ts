@@ -4,6 +4,7 @@ import { createClient, Device } from './core/adb';
 import { program } from 'commander';
 import { join } from 'node:path';
 import moment from 'moment';
+import { loadDataFromStream } from './core/utils/stream';
 
 program
     .name('wfa')
@@ -12,6 +13,19 @@ program
 
 program
     .command('play')
+    .action(async () => {
+        const adb = createClient();
+        const list = await adb.listDevices();
+        if (list.length) {
+            const chooseNoneOffline = list.find(d => d.type !== 'offline');
+            if (chooseNoneOffline) {
+                const device = adb.getDevice(chooseNoneOffline.id);
+                const stream = await device.screencap();
+                const data = await loadDataFromStream(stream);
+                await writeFile(join(__dirname, 'screen.png'), data);
+            }
+        }
+    });
 
 interface CShotOptions {
     device?: string;
@@ -27,7 +41,7 @@ program
     .action(async (filename: string | undefined, options: CShotOptions) => {
         const adb = await createClient();
         const list = await adb.listDevices();
-        if (list.filter(d => d.type === 'device').length === 0) {
+        if (list.filter(d => d.type !== 'offline').length === 0) {
             console.error('No device connected.');
             return;
         } else {
@@ -45,7 +59,7 @@ program
                     device = adb.getDevice(list[0].id);
                 }
                 const filepath = join(options.saveDir, filename ? `${filename}.png` : `${moment().format('YYYYMMDD-HHmmss')}.png`);
-                const img = await device.screenshot();
+                const img = await device.screenshot(false);
                 await writeFile(filepath, img);
             } catch (error) {
                 console.error(error);
