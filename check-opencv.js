@@ -1,3 +1,4 @@
+const { spawn, exec } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const package = require('./package.json');
@@ -47,4 +48,17 @@ if (process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD === '1') {
     checkPackageJson();
 }
 
-console.log('OK');
+const cp = spawn('npm.cmd', ['exec', 'build-opencv', 'rebuild'], {
+    stdio: 'inherit', env: {
+        OPENCV_LIB_DIR: package.opencv4nodejs.opencvLibDir,
+        ...process.env
+    }
+});
+
+cp.on('exit', (code, signal) => {
+    if (code === 0) {
+        console.log('OpenCV has been successfully built.');
+    } else {
+        console.log('OpenCV has not been built.');
+    }
+});
