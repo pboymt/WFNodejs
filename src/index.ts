@@ -1,10 +1,11 @@
-// import cv from '@u4/opencv4nodejs';
+import "./core/utils/env";
 import { writeFile } from 'node:fs/promises';
 import { createClient, Device } from './core/adb';
 import { program } from 'commander';
 import { join } from 'node:path';
 import moment from 'moment';
 import { loadDataFromStream } from './core/utils/stream';
+import { logger } from "./core/utils/logger";
 
 program
     .name('wfa')
@@ -42,7 +43,7 @@ program
         const adb = await createClient();
         const list = await adb.listDevices();
         if (list.filter(d => d.type !== 'offline').length === 0) {
-            console.error('No device connected.');
+            logger.warn('No device connected.');
             return;
         } else {
             try {
@@ -52,7 +53,7 @@ program
                     if (result) {
                         device = adb.getDevice(result.id);
                     } else {
-                        console.error('Device not found.');
+                        logger.error('Device not found.');
                         return;
                     }
                 } else {
@@ -62,7 +63,7 @@ program
                 const img = await device.screenshot(false);
                 await writeFile(filepath, img);
             } catch (error) {
-                console.error(error);
+                logger.error(error);
             }
         }
     });
