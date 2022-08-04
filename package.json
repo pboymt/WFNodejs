@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "node check-opencv.js",
+    "preinstall": "node preinstall.js",
+    "postinstall": "node postinstall.js",
     "dev": "tsc -p tsconfig.json --watch",
     "sass": "sass html/index.scss html/index.css --watch",
     "html": "tsc --watch --outFile html/index.js html/index.ts"
@@ -29,15 +30,9 @@
     "@u4/adbkit": "^4.1.1",
     "@u4/opencv4nodejs": "^6.2.1",
     "commander": "^9.4.0",
+    "dotenv": "^16.0.1",
     "log4js": "^6.6.1",
     "moment": "^2.29.4",
     "sharp": "^0.30.7"
-  },
-  "opencv4nodejs": {
-    "disableAutoBuild": 1,
-    "opencvIncludeDir": "./opencv/build/include",
-    "opencvLibDir": "./opencv/build/x64/vc14/lib",
-    "opencvBinDir": "./opencv/build/x64/vc14/bin",
-    "autoBuildOpencvVersion": "4.6.0"
   }
 }
