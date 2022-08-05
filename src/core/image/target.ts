@@ -2,8 +2,9 @@ import { imread, Mat, TM_CCOEFF_NORMED } from "@u4/opencv4nodejs";
 import { randomInt } from "node:crypto";
 import { join } from "node:path";
 import { Device } from "../adb";
+import { logger } from "../utils/logger";
 
-const TARGET_DIR = join(__dirname, '../../target');
+const TARGET_DIR = join(__dirname, '../../../target');
 
 export interface Point {
     x: number;
@@ -35,7 +36,7 @@ export class Target {
 
     async find(): Promise<PointWithTreshold>;
     async find(threshold: number): Promise<Point>;
-    async find(threshold?: number): Promise<Point | PointWithTreshold> {
+    async find(threshold: number = 0.9): Promise<Point | PointWithTreshold> {
         const screen = await this.device.screenshot();
         const result = screen.matchTemplate(this.image, TM_CCOEFF_NORMED);
         const minMax = result.minMaxLoc();
@@ -51,8 +52,8 @@ export class Target {
         }
     }
 
-    async exists(threshold: number = 0.95): Promise<boolean> {
-        const screen = await this.device.screenshot();
+    async exists(threshold: number = 0.9): Promise<boolean> {
+        const screen = await this.device.screenshot(true);
         const result = screen.matchTemplate(this.image, TM_CCOEFF_NORMED);
         const minMax = result.minMaxLoc();
         return minMax.maxVal > threshold;
