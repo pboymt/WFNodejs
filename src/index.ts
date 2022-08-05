@@ -1,18 +1,19 @@
 import "./core/utils/env";
-import { writeFile } from 'node:fs/promises';
-import { createClient, Device } from './core/adb';
-import { program } from 'commander';
-import { join } from 'node:path';
-import moment from 'moment';
-import { loadDataFromStream } from './core/utils/stream';
 import { logger } from "./core/utils/logger";
+import { program } from 'commander';
+import moment from 'moment';
+import { writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { createClient, Device } from './core/adb';
+import { play } from "./core/script";
+import { TestScript } from "./scripts/test";
 
 program
     .name('wfa')
     .version('0.0.1')
     .description('WFNodejs is a tool for Android device to play World Flipper automatically.');
 
-program
+const cmd_play = program
     .command('play')
     .action(async () => {
         const adb = createClient();
@@ -21,9 +22,7 @@ program
             const chooseNoneOffline = list.find(d => d.type !== 'offline');
             if (chooseNoneOffline) {
                 const device = adb.getDevice(chooseNoneOffline.id);
-                const stream = await device.screencap();
-                const data = await loadDataFromStream(stream);
-                await writeFile(join(__dirname, 'screen.png'), data);
+                await play(TestScript, { device });
             }
         }
     });
