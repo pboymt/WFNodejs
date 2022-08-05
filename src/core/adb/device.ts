@@ -1,6 +1,7 @@
-import { Client, DeviceClient } from "@u4/adbkit";
+import { DeviceClient } from "@u4/adbkit";
 import { imdecodeAsync, Mat } from "@u4/opencv4nodejs";
 import { setTimeout } from "node:timers/promises";
+import { logger } from "../utils/logger";
 import { loadDataFromStream } from "../utils/stream";
 
 const DISPLAY_REGEXP = /DisplayViewport\{.*valid=true, .*orientation=(?<orientation>\d+), .*deviceWidth=(?<width>\d+), .*deviceHeight=(?<height>\d+)/;
@@ -13,7 +14,8 @@ export class Device extends DeviceClient {
 
     async screenshot(mat?: true): Promise<Mat>;
     async screenshot(mat?: false): Promise<Buffer>;
-    async screenshot(mat: boolean = true): Promise<Buffer | Mat> {
+    async screenshot(mat = true): Promise<Buffer | Mat> {
+        logger.trace(`输出截图格式：${mat ? 'Mat' : 'Buffer'}`);
         let data: Buffer;
         if (this.is_capturing) {
             if (Date.now() - this.last_screenshot_time < 1000 && this.last_screenshot_buf !== undefined) {
