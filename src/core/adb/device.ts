@@ -1,19 +1,49 @@
 import { Client, DeviceClient } from "@u4/adbkit";
 import { imdecodeAsync, Mat } from "@u4/opencv4nodejs";
+import { setTimeout } from "node:timers/promises";
 import { loadDataFromStream } from "../utils/stream";
 
 const DISPLAY_REGEXP = /DisplayViewport\{.*valid=true, .*orientation=(?<orientation>\d+), .*deviceWidth=(?<width>\d+), .*deviceHeight=(?<height>\d+)/;
 
 export class Device extends DeviceClient {
 
+    private last_screenshot_buf?: Buffer;
+    private last_screenshot_time: number = 0;
+    private is_capturing = false;
+
     async screenshot(mat?: true): Promise<Mat>;
     async screenshot(mat?: false): Promise<Buffer>;
     async screenshot(mat: boolean = true): Promise<Buffer | Mat> {
-        const stream = await this.screencap();
-        const data = await loadDataFromStream(stream);
+        let data: Buffer;
+        if (this.is_capturing) {
+            if (Date.now() - this.last_screenshot_time < 1000 && this.last_screenshot_buf !== undefined) {
+                data = this.last_screenshot_buf;
+            } else {
+                while (this.is_capturing) {
+                    await setTimeout(100);
+                }
+                data = this.last_screenshot_buf!;
+            }
+        } else {
+            if (Date.now() - this.last_screenshot_time < 1000 && this.last_screenshot_buf !== undefined) {
+                data = this.last_screenshot_buf;
+            } else {
+                data = await this.capture_proc();
+            }
+        }
         if (mat) {
             return await imdecodeAsync(data);
         }
+        return data;
+    }
+
+    private async capture_proc() {
+        this.is_capturing = true;
+        const stream = await this.screencap();
+        const data = await loadDataFromStream(stream);
+        this.is_capturing = false;
+        this.last_screenshot_time = Date.now();
+        this.last_screenshot_buf = data;
         return data;
     }
 
