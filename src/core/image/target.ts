@@ -22,7 +22,7 @@ export class Target {
         private readonly device: Device,
         private readonly filename: string
     ) {
-        this.image = imread(join(TARGET_DIR, filename));
+        this.image = imread(join(TARGET_DIR, `${filename}.png`));
     }
 
     get width(): number {
