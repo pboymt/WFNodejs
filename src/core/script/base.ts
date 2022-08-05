@@ -9,7 +9,7 @@ export abstract class BaseScript<L extends string> {
     abstract script_name: string;
     abstract package_name: string;
     abstract target_list: Set<L>;
-    private device: Device;
+    protected device: Device;
     private map_target = new Map<L, Target>();
 
     constructor(options: { device: Device }) {
