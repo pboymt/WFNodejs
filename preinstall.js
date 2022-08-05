@@ -1,7 +1,8 @@
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const { spawnSync } = require('child_process');
+const https = require('node:https');
+const fs = require('node:fs');
+const { writeFile } = require('node:fs/promises');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 async function checkPlatform() {
     const platform = process.platform;
@@ -65,8 +66,8 @@ async function downloadWithRedirect(url, dest) {
 const pathList = {
     'opencv': {
         OPENCV_INCLUDE_DIR: 'opencv/build/include',
-        OPENCV_LIB_DIR: 'opencv/build//x64/vc15/lib',
-        OPENCV_BIN_DIR: 'opencv/build//x64/vc15/bin'
+        OPENCV_LIB_DIR: 'opencv/build/x64/vc15/lib',
+        OPENCV_BIN_DIR: 'opencv/build/x64/vc15/bin'
     },
     'opencv/opencv': {
         OPENCV_INCLUDE_DIR: 'opencv/opencv/build/include',
@@ -108,7 +109,7 @@ async function checkOpenCV() {
     }
     console.log('检查 opencv 目录');
     const opencv = pathList.opencv;
-    for (const p of opencv) {
+    for (const [k, p] of Object.entries(opencv)) {
         if (fs.existsSync(p)) {
             const fstat = fs.statSync(p);
             if (fstat.isDirectory()) {
@@ -134,7 +135,7 @@ async function checkOpenCV() {
     }
     console.log('检查 opencv/opencv 目录');
     const opencvOpencv = pathList['opencv/opencv'];
-    for (const p of opencvOpencv) {
+    for (const [k, p] of Object.entries(opencvOpencv)) {
         if (fs.existsSync(p)) {
             const fstat = fs.statSync(p);
             if (fstat.isDirectory()) {
@@ -174,25 +175,27 @@ async function checkOpenCV() {
     }
 
     const opencv_is_exists = await checkOpenCV();
-    if (opencv_is_exists) return;
 
-    console.log('是否下载安装 OpenCV？（Yy/Nn，默认为N）');
-    const key1 = await keypress();
-    if ([89, 121].includes(key1)) {
-        console.log('下载安装 OpenCV...');
-        await downloadWithRedirect('https://github.com/opencv/opencv/releases/download/4.6.0/opencv-4.6.0-vc14_vc15.exe', 'opencv/opencv.exe');
-        console.log('下载完成！');
-        spawnSync('./opencv/opencv.exe', ['-o', './opencv/', '-y']);
-    } else {
-        console.log('您选择了不下载安装 OpenCV！你需要等候自动编译！如果您想自行配置 OpenCV，请按 Ctrl-C 停止安装进程，请阅读 README.md 查看配置方法');
+    if (!opencv_is_exists) {
+
+        console.log('是否下载安装 OpenCV？（Yy/Nn，默认为N）');
+        const key1 = await keypress();
+        if ([89, 121].includes(key1)) {
+            console.log('下载安装 OpenCV...');
+            await downloadWithRedirect('https://github.com/opencv/opencv/releases/download/4.6.0/opencv-4.6.0-vc14_vc15.exe', 'opencv/opencv.exe');
+            console.log('下载完成！');
+            spawnSync('./opencv/opencv.exe', ['-o', './opencv/', '-y']);
+        } else {
+            console.log('您选择了不下载安装 OpenCV！你需要等候自动编译！如果您想自行配置 OpenCV，请按 Ctrl-C 停止安装进程，请阅读 README.md 查看配置方法');
+        }
+
     }
-
     console.log('配置环境变量 .env');
     const dotenv_content = `OPENCV4NODEJS_DISABLE_AUTOBUILD=1\n` +
         `OPENCV_INCLUDE_DIR=${process.env.OPENCV_INCLUDE_DIR}\n` +
         `OPENCV_LIB_DIR=${process.env.OPENCV_LIB_DIR}\n` +
         `OPENCV_BIN_DIR=${process.env.OPENCV_BIN_DIR}\n`;
-    await writeFile(join(__dirname, '.env'), dotenv_content, 'utf8');
+    await writeFile(path.join(__dirname, '.env'), dotenv_content, 'utf8');
 
 })().then(() => {
     process.exit();
