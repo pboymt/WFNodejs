@@ -65,19 +65,19 @@ async function downloadWithRedirect(url, dest) {
 
 const pathList = {
     'opencv': {
-        OPENCV_INCLUDE_DIR: 'opencv/build/include',
-        OPENCV_LIB_DIR: 'opencv/build/x64/vc15/lib',
-        OPENCV_BIN_DIR: 'opencv/build/x64/vc15/bin'
+        OPENCV_INCLUDE_DIR: path.resolve('opencv/build/include'),
+        OPENCV_LIB_DIR: path.resolve('opencv/build/x64/vc15/lib'),
+        OPENCV_BIN_DIR: path.resolve('opencv/build/x64/vc15/bin'),
     },
     'opencv/opencv': {
-        OPENCV_INCLUDE_DIR: 'opencv/opencv/build/include',
-        OPENCV_LIB_DIR: 'opencv/opencv/build/x64/vc15/lib',
-        OPENCV_BIN_DIR: 'opencv/opencv/build/x64/vc15/bin',
+        OPENCV_INCLUDE_DIR: path.resolve('opencv/opencv/build/include'),
+        OPENCV_LIB_DIR: path.resolve('opencv/opencv/build/x64/vc15/lib'),
+        OPENCV_BIN_DIR: path.resolve('opencv/opencv/build/x64/vc15/bin'),
     },
     'env': {
-        OPENCV_INCLUDE_DIR: process.env.OPENCV_INCLUDE_DIR,
-        OPENCV_LIB_DIR: process.env.OPENCV_LIB_DIR,
-        OPENCV_BIN_DIR: process.env.OPENCV_BIN_DIR,
+        OPENCV_INCLUDE_DIR: process.env.OPENCV_INCLUDE_DIR ? path.resolve(process.env.OPENCV_INCLUDE_DIR) : undefined,
+        OPENCV_LIB_DIR: process.env.OPENCV_LIB_DIR ? path.resolve(process.env.OPENCV_LIB_DIR) : undefined,
+        OPENCV_BIN_DIR: process.env.OPENCV_BIN_DIR ? path.resolve(process.env.OPENCV_BIN_DIR) : undefined,
     }
 }
 
