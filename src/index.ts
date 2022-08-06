@@ -2,8 +2,8 @@ import "./core/utils/env";
 import { logger } from "./core/utils/logger";
 import { program } from 'commander';
 import moment from 'moment';
-import { writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readdir, writeFile } from 'node:fs/promises';
+import { basename, join } from 'node:path';
 import { createClient, Device } from './core/adb';
 import { play } from "./core/script";
 import { TestScript } from "./scripts/test";
@@ -36,7 +36,7 @@ program
     .command('shot')
     .argument('[filename]', 'filename of screenshot', (v, p) => v ?? moment().format('YYYYMMDD-HHmmss'))
     .option('-d, --device <id>', 'device id')
-    .option('-s, --save-dir <dir>', 'save directory', join(process.cwd(), 'screenshot'))
+    .option('-s, --save-dir <dir>', 'save directory', join(__dirname, '..', 'screenshot'))
     .description('Take a screenshot and save it to a file.')
     .action(async (filename: string | undefined, options: CShotOptions) => {
         const adb = await createClient();
@@ -64,6 +64,26 @@ program
             } catch (error) {
                 logger.error(error);
             }
+        }
+    });
+
+program
+    .command('tpl [template]')
+    .description('Take a screenshot and search the specified template.')
+    .option('-d, --device <id>', 'device id')
+    .action(async (template: string | undefined, options: Pick<CShotOptions, 'device'>) => {
+        if (!template) {
+            const list = await readdir(join(__dirname, '..', 'target'));
+            for (const file of list) {
+                if (file.endsWith('.png')) {
+                    // remove extension
+                    const name = basename(file, '.png');
+                    logger.info(name);
+                }
+            }
+            return;
+        }else{
+            
         }
     });
 
