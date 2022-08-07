@@ -134,17 +134,15 @@ export class TestScript extends BaseScript<TargetList> {
     }
 
     async wait_for_return_to_ring_team(): Promise<boolean> {
-        // TODO 有时候会出现战斗结束后探测不到队伍解散和网络丢失的情况，需要进一步调试
-        // TODO 有时候会出现战斗结束后直接返回主页的情况，这时候需要重新等待铃铛
         logger.info('等待返回铃铛队伍');
         while (!await this.target('waiting-room-team-form').exists()) {
-            if (await this.target('finish-alert-team-dismiss').exists() || await this.target('finish-alert-lost-connection').exists()) {
-                logger.info('队伍被解散');
-                while (await this.target('btn-ok').exists()) {
-                    logger.debug('尝试点击 OK');
-                    await this.target('btn-ok').click();
-                    await setTimeout(500);
-                }
+            if (await this.target('btn-ok').exists()) {
+                logger.info('队伍被解散，需要关闭对话框');
+                await this.target('btn-ok').click();
+                return false;
+            }
+            if (await this.target('home-btn-chapter').exists()) {
+                logger.info('队伍被解散，已回到游戏主页');
                 return false;
             }
             await setTimeout(2000);
