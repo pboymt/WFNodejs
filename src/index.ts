@@ -7,23 +7,23 @@ import { basename, join } from 'node:path';
 import { createClient, Device } from './core/adb';
 import { play } from "./core/script";
 import { TestScript } from "./scripts/test";
+import { chooseDevice } from "./core/adb/choose";
+import { listTargets } from "./core/image/list";
+import { Target } from "./core/image/target";
 
 program
     .name('wfa')
     .version('0.0.1')
-    .description('WFNodejs is a tool for Android device to play World Flipper automatically.');
+    .description('WFNodejs 是一个运行于 Node.js 的游戏自动化脚本，目前可用于世界弹射物语（国服）。');
 
 const cmd_play = program
     .command('play')
-    .action(async () => {
-        const adb = createClient();
-        const list = await adb.listDevices();
-        if (list.length) {
-            const chooseNoneOffline = list.find(d => d.type !== 'offline');
-            if (chooseNoneOffline) {
-                const device = adb.getDevice(chooseNoneOffline.id);
-                await play(TestScript, { device });
-            }
+    .description('运行脚本')
+    .option('-d, --device <device>', 'Device serial number.')
+    .action(async (options: Pick<CShotOptions, 'device'>) => {
+        const device = await chooseDevice(options.device);
+        if (device) {
+            await play(TestScript, { device });
         }
     });
 
@@ -37,54 +37,73 @@ program
     .argument('[filename]', 'filename of screenshot', (v, p) => v ?? moment().format('YYYYMMDD-HHmmss'))
     .option('-d, --device <id>', 'device id')
     .option('-s, --save-dir <dir>', 'save directory', join(__dirname, '..', 'screenshot'))
-    .description('Take a screenshot and save it to a file.')
+    .description('（开发用）从选定的设备上截图并保存到本地')
     .action(async (filename: string | undefined, options: CShotOptions) => {
-        const adb = await createClient();
-        const list = await adb.listDevices();
-        if (list.filter(d => d.type !== 'offline').length === 0) {
-            logger.warn('No device connected.');
-            return;
-        } else {
-            try {
-                let device: Device;
-                if (options.device) {
-                    const result = list.find(d => d.id === options.device);
-                    if (result) {
-                        device = adb.getDevice(result.id);
-                    } else {
-                        logger.error('Device not found.');
-                        return;
-                    }
-                } else {
-                    device = adb.getDevice(list[0].id);
-                }
+        try {
+            const device = await chooseDevice(options.device);
+            if (device) {
                 const filepath = join(options.saveDir, filename ? `${filename}.png` : `${moment().format('YYYYMMDD-HHmmss')}.png`);
                 const img = await device.screenshot(false);
                 await writeFile(filepath, img);
-            } catch (error) {
-                logger.error(error);
             }
+        } catch (error) {
+            logger.error(error);
         }
     });
 
 program
-    .command('tpl [template]')
-    .description('Take a screenshot and search the specified template.')
-    .option('-d, --device <id>', 'device id')
-    .action(async (template: string | undefined, options: Pick<CShotOptions, 'device'>) => {
-        if (!template) {
-            const list = await readdir(join(__dirname, '..', 'target'));
-            for (const file of list) {
-                if (file.endsWith('.png')) {
-                    // remove extension
-                    const name = basename(file, '.png');
-                    logger.info(name);
-                }
+    .command('connect')
+    .argument('<host>', '设备 IP 地址或域名')
+    .argument('[port]', '设备调试端口号', (v, p) => typeof v === 'string' ? parseInt(v) : v, 5555)
+    .description('通过 TCP/IP 连接到 Android 设备。（需要在设备上开启无线调试服务）')
+    .action(async (host: string, port: number) => {
+        const adb = await createClient();
+        const result = await adb.connect(host, port ?? 5555);
+        logger.info(result ? '连接成功' : '连接失败');
+    });
+
+const cmd_dev = program
+    .command('dev')
+    .description('一些开发用指令，不要在正式环境使用');
+
+const cmd_dev_template = cmd_dev
+    .command('template')
+    .description('图片模板的开发指令');
+
+cmd_dev_template
+    .command('list')
+    .description('列出所有模板')
+    .action(async () => {
+        const list = await listTargets();
+        for (const file of list) {
+            if (file.endsWith('.png')) {
+                // remove extension
+                const name = basename(file, '.png');
+                logger.info(name);
             }
-            return;
-        }else{
-            
         }
     });
+
+cmd_dev_template
+    .command('find <name>')
+    .description('在选定设备的当前屏幕画面中查找指定模板')
+    .option('-d, --device <id>', '设备 ID')
+    .action(async (name: string, options: Pick<CShotOptions, 'device'>) => {
+        const list = await listTargets();
+        if (!list.includes(name)) {
+            logger.error(`模板 ${name} 不存在`);
+            return;
+        }
+        const device = await chooseDevice(options.device);
+        if (!device) return;
+        const result = await new Target(device, `${name}.png`).find();
+        if (result) {
+            logger.info(`找到 ${name}，位置：${result.x}, ${result.y}`);
+        } else {
+            logger.info(`未找到 ${name}`);
+        }
+    });
+
+
 
 program.parse();
