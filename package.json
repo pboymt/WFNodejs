@@ -35,6 +35,7 @@
     "inquirer": "^8.2.4",
     "log4js": "^6.6.1",
     "moment": "^2.29.4",
+    "reflect-metadata": "^0.1.13",
     "sharp": "^0.30.7"
   }
 }
