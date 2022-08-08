@@ -2,11 +2,12 @@ import { getLogger } from "log4js";
 import { setTimeout } from "node:timers/promises";
 import { Device } from "../core/adb";
 import { BaseScript } from "../core/script";
+import { LTargets } from "./_targets";
 
 const logger = getLogger('test');
-type TargetList = 'ring' | 'btn-ok' | 'btn-ring-join-accept' | 'waiting-room-team-form' |
-    'waiting-room-auto-continue-no' | 'waiting-room-ready-no' | 'battle-auto-skill-on' |
-    'finish-alert-team-dismiss' | 'home-btn-chapter' | 'finish-alert-lost-connection' | 'buyback';
+type TargetList = keyof Pick<LTargets, 'ring' | 'btn-ok' | 'btn-ring-join-accept' | 'waiting-room-team-form' |
+    'waiting-room-auto-continue-no' | 'waiting-room-ready-no' | 'btn-battle-auto-skill-on' |
+    'finish-alert-team-dismiss' | 'home-btn-chapter' | 'finish-alert-lost-connection' | 'buyback'>
 
 export class TestScript extends BaseScript<TargetList> {
 
@@ -15,7 +16,7 @@ export class TestScript extends BaseScript<TargetList> {
 
     target_list = new Set<TargetList>([
         'ring', 'btn-ok', 'btn-ring-join-accept', 'waiting-room-team-form',
-        'waiting-room-auto-continue-no', 'waiting-room-ready-no', 'battle-auto-skill-on',
+        'waiting-room-auto-continue-no', 'waiting-room-ready-no', 'btn-battle-auto-skill-on',
         'finish-alert-team-dismiss', 'home-btn-chapter', 'finish-alert-lost-connection', 'buyback'
     ]);
 
@@ -104,7 +105,7 @@ export class TestScript extends BaseScript<TargetList> {
 
     async wait_for_battle(): Promise<boolean> {
         logger.info('等待战斗');
-        while (!await this.target('battle-auto-skill-on').exists()) {
+        while (!await this.target('btn-battle-auto-skill-on').exists()) {
             if (await this.target('btn-ok').exists()) {
                 logger.info('无法返回队伍');
                 await this.target('btn-ok').click();
@@ -122,7 +123,7 @@ export class TestScript extends BaseScript<TargetList> {
 
     async wait_for_battle_finish(): Promise<boolean> {
         logger.debug('等待战斗结束');
-        while (await this.target('battle-auto-skill-on').exists()) {
+        while (await this.target('btn-battle-auto-skill-on').exists()) {
             if (await this.target('buyback').exists()) {
                 logger.info('战斗失败，不再续战');
                 return false;

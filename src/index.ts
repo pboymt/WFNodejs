@@ -1,4 +1,5 @@
 import "./core/utils/env";
+import 'reflect-metadata';
 import { logger } from "./core/utils/logger";
 import { program } from 'commander';
 import moment from 'moment';
@@ -10,6 +11,8 @@ import { TestScript } from "./scripts/test";
 import { chooseDevice } from "./core/adb/choose";
 import { listTargets } from "./core/image/list";
 import { Target } from "./core/image/target";
+import { watchTargetsAndGenerateTargetInterface } from "./dev";
+import { test } from "./test";
 
 program
     .name('wfa')
@@ -66,6 +69,13 @@ const cmd_dev = program
     .command('dev')
     .description('一些开发用指令，不要在正式环境使用');
 
+cmd_dev
+    .command('test')
+    .description('测试指令')
+    .action(async () => {
+        await test();
+    });
+
 const cmd_dev_template = cmd_dev
     .command('template')
     .description('图片模板的开发指令');
@@ -104,6 +114,11 @@ cmd_dev_template
         }
     });
 
-
+cmd_dev_template
+    .command('watch')
+    .description('生成所有模板')
+    .action(async () => {
+        await watchTargetsAndGenerateTargetInterface();
+    });
 
 program.parse();
