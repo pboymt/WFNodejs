@@ -133,3 +133,4 @@ dist
 /app/
 /opencv/
 /screenshot/*.png
+/screenshot/*.psd
