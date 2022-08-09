@@ -6,7 +6,7 @@ const { spawnSync, spawn } = require('node:child_process');
 const { existsSync } = require('node:fs');
 const { join } = require('node:path');
 
-async function checkPlatform() {
+function checkPlatform() {
     const platform = process.platform;
     if (platform !== 'win32') {
         console.log(`不支持预下载 OpenCV 的平台：${platform}`);
