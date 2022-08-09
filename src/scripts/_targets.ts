@@ -35,3 +35,5 @@ export interface LTargets {
     'waiting-room-ready-yes': Target;
     'waiting-room-team-form': Target;
 }
+
+export type Targets = keyof LTargets;

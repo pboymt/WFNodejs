@@ -29,6 +29,7 @@ async function generateTargetList(): Promise<void> {
     const content = 'import { Target } from "../core/image/target";\n\n' +
         `export interface LTargets {\n` +
         targets.map(v => `    '${v}': Target;`).join('\n') + '\n' +
-        `}\n`;
+        `}\n\n` +
+        'export type Targets = keyof LTargets;\n';
     await writeFile(TARGET_LIST_FILE, content);
 }

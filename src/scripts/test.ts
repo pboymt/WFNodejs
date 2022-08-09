@@ -2,23 +2,14 @@ import { getLogger } from "log4js";
 import { setTimeout } from "node:timers/promises";
 import { Device } from "../core/adb";
 import { BaseScript } from "../core/script";
-import { LTargets } from "./_targets";
+import { LTargets, Targets } from "./_targets";
 
 const logger = getLogger('test');
-type TargetList = keyof Pick<LTargets, 'ring' | 'btn-ok' | 'btn-ring-join-accept' | 'waiting-room-team-form' |
-    'waiting-room-auto-continue-no' | 'waiting-room-ready-no' | 'btn-battle-auto-skill-on' |
-    'finish-alert-team-dismiss' | 'home-btn-chapter' | 'finish-alert-lost-connection' | 'buyback'>
 
-export class TestScript extends BaseScript<TargetList> {
+export class TestScript extends BaseScript {
 
     script_name = 'test';
     package_name = 'com.leiting.wf';
-
-    target_list = new Set<TargetList>([
-        'ring', 'btn-ok', 'btn-ring-join-accept', 'waiting-room-team-form',
-        'waiting-room-auto-continue-no', 'waiting-room-ready-no', 'btn-battle-auto-skill-on',
-        'finish-alert-team-dismiss', 'home-btn-chapter', 'finish-alert-lost-connection', 'buyback'
-    ]);
 
     constructor(options: { device: Device }) {
         super(options);
@@ -59,6 +50,7 @@ export class TestScript extends BaseScript<TargetList> {
         }
     }
 
+    @BaseScript.use('ring')
     async wait_for_ring(): Promise<void> {
         logger.info('等待铃铛');
         while (!await this.target('ring').exists()) {
@@ -67,6 +59,7 @@ export class TestScript extends BaseScript<TargetList> {
         logger.info('发现铃铛');
     }
 
+    @BaseScript.use('ring', 'btn-ring-join-accept')
     async open_ring_window(): Promise<void> {
         logger.debug('尝试打开铃铛窗口');
         while (!await this.target('btn-ring-join-accept').exists()) {
@@ -76,6 +69,7 @@ export class TestScript extends BaseScript<TargetList> {
         logger.info('打开铃铛窗口');
     }
 
+    @BaseScript.use('waiting-room-team-form', 'btn-ring-join-accept')
     async accept_ring(): Promise<void> {
         logger.debug('尝试接受铃铛');
         while (!await this.target('waiting-room-team-form').exists()) {
@@ -85,6 +79,7 @@ export class TestScript extends BaseScript<TargetList> {
         logger.info('接受铃铛组队');
     }
 
+    @BaseScript.use('waiting-room-auto-continue-no')
     async enable_auto_continue(): Promise<void> {
         logger.debug('尝试开启自动续战');
         while (await this.target('waiting-room-auto-continue-no').exists()) {
@@ -94,6 +89,7 @@ export class TestScript extends BaseScript<TargetList> {
         logger.info('开启自动续战');
     }
 
+    @BaseScript.use('waiting-room-ready-no')
     async set_ready(): Promise<void> {
         logger.debug('尝试点击准备完毕');
         while (await this.target('waiting-room-ready-no').exists()) {
@@ -103,6 +99,7 @@ export class TestScript extends BaseScript<TargetList> {
         logger.info('点击准备完毕');
     }
 
+    @BaseScript.use('btn-battle-auto-skill-on', 'btn-ok', 'home-btn-chapter')
     async wait_for_battle(): Promise<boolean> {
         logger.info('等待战斗');
         while (!await this.target('btn-battle-auto-skill-on').exists()) {
@@ -121,6 +118,7 @@ export class TestScript extends BaseScript<TargetList> {
         return true;
     }
 
+    @BaseScript.use('btn-battle-auto-skill-on', 'buyback')
     async wait_for_battle_finish(): Promise<boolean> {
         logger.debug('等待战斗结束');
         while (await this.target('btn-battle-auto-skill-on').exists()) {
@@ -134,6 +132,7 @@ export class TestScript extends BaseScript<TargetList> {
         return true;
     }
 
+    @BaseScript.use('waiting-room-team-form', 'btn-ok', 'home-btn-chapter')
     async wait_for_return_to_ring_team(): Promise<boolean> {
         logger.info('等待返回铃铛队伍');
         while (!await this.target('waiting-room-team-form').exists()) {
