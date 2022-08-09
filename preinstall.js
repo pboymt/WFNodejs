@@ -15,20 +15,19 @@ function checkPlatform() {
     return true;
 }
 
-async function keypress() {
-    process.stdin.setRawMode(true);
-    return new Promise(resolve => process.stdin.once('data', data => {
-        const byteArray = [...data];
-        if (byteArray.length > 0 && byteArray[0] === 3) {
-            console.log('cancel');
-            process.exit(1);
-        }
-        process.stdin.setRawMode(false);
-        resolve(byteArray[0]);
-    }))
-}
+// async function keypress() {
+//     process.stdin.setRawMode(true);
+//     return new Promise(resolve => process.stdin.once('data', data => {
+//         const byteArray = [...data];
+//         if (byteArray.length > 0 && byteArray[0] === 3) {
+//             console.log('cancel');
+//             process.exit(1);
+//         }
+//         process.stdin.setRawMode(false);
+//         resolve(byteArray[0]);
+//     }))
+// }
 
-// download from url with handle http 302 redirect
 async function downloadWithRedirect(url, dest) {
     return new Promise((resolve, reject) => {
         const req = https.get(url, async res => {
@@ -185,16 +184,18 @@ async function checkOpenCV() {
 
     if (!opencv_is_exists) {
 
-        console.log('是否下载安装 OpenCV？（Yy/Nn，默认为N）');
-        const key1 = await keypress();
-        if ([89, 121].includes(key1)) {
-            console.log('下载安装 OpenCV...');
-            await downloadWithRedirect('https://github.com/opencv/opencv/releases/download/4.6.0/opencv-4.6.0-vc14_vc15.exe', 'opencv/opencv.exe');
-            console.log('下载完成！');
-            spawnSync('./opencv/opencv.exe', ['-o', './opencv/', '-y']);
-        } else {
-            console.log('您选择了不下载安装 OpenCV！你需要等候自动编译！如果您想自行配置 OpenCV，请按 Ctrl-C 停止安装进程，请阅读 README.md 查看配置方法');
-        }
+        // console.log('是否下载安装 OpenCV？（Yy/Nn，默认为N）');
+        // const key1 = await keypress();
+        // if ([89, 121].includes(key1)) {
+        console.log('下载安装 OpenCV...');
+        await downloadWithRedirect('https://github.com/opencv/opencv/releases/download/4.6.0/opencv-4.6.0-vc14_vc15.exe', 'opencv/opencv.exe');
+        console.log('下载完成！');
+        spawnSync('./opencv/opencv.exe', ['-o', './opencv/', '-y']);
+        // } else {
+        //     console.log('您选择了不下载安装 OpenCV！你需要等候自动编译！如果您想自行配置 OpenCV，请按 Ctrl-C 停止安装进程，请阅读 README.md 查看配置方法');
+        // }
+        console.log('OpenCV 安装完成！重新运行检查 OpenCV 是否安装成功，并自动配置环境变量');
+        await checkOpenCV();
 
     }
     console.log('配置环境变量 .env');
