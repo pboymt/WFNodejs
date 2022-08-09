@@ -2,14 +2,15 @@ const https = require('node:https');
 const fs = require('node:fs');
 const { writeFile } = require('node:fs/promises');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
+const { spawnSync, spawn } = require('node:child_process');
 
 async function checkPlatform() {
     const platform = process.platform;
     if (platform !== 'win32') {
-        throw new Error(`不支持的平台：${platform}`);
+        console.log(`不支持预下载 OpenCV 的平台：${platform}`);
+        return false;
     }
-    return platform;
+    return true;
 }
 
 async function keypress() {
@@ -167,7 +168,12 @@ async function checkOpenCV() {
 
 (async () => {
 
-    checkPlatform();
+    const is_support_auto_download_opencv = checkPlatform();
+    if (!is_support_auto_download_opencv) {
+        console.log('当前平台不支持自动下载 OpenCV');
+        delete process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD;
+        return;
+    }
 
     if (process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD !== '1') {
         console.log('自动构建 OpenCV，不再检查是否配置了 OpenCV');
@@ -198,7 +204,21 @@ async function checkOpenCV() {
     await writeFile(path.join(__dirname, '.env'), dotenv_content, 'utf8');
 
 })().then(() => {
-    process.exit();
+    console.log('配置完成！');
+    return new Promise((resolve) => {
+        const cp = spawn('npm.cmd', ['install'], {
+            env: process.env,
+            cwd: __dirname,
+            stdio: 'inherit'
+        });
+        cp.on('close', (code) => {
+            resolve(code);
+        }).on('error', (err) => {
+            resolve(err);
+        }).on('exit', (code) => {
+            resolve(code);
+        });
+    });
 }).catch(e => {
     console.error(e);
     process.exit(1);
