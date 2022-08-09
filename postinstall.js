@@ -73,7 +73,9 @@ if (process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD === '1') {
             process.exit(0);
         }
 
-        const cp = spawnSync('npm.cmd', ['exec', 'build-opencv', 'rebuild'], {
+        const npm_cmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+
+        const cp = spawnSync(npm_cmd, ['exec', 'build-opencv', 'rebuild'], {
             stdio: 'inherit', env: process.env
         });
 
