@@ -3,6 +3,8 @@ const fs = require('node:fs');
 const { writeFile } = require('node:fs/promises');
 const path = require('node:path');
 const { spawnSync, spawn } = require('node:child_process');
+const { existsSync } = require('node:fs');
+const { join } = require('node:path');
 
 async function checkPlatform() {
     const platform = process.platform;
@@ -171,11 +173,10 @@ async function checkOpenCV() {
     const is_support_auto_download_opencv = checkPlatform();
     if (!is_support_auto_download_opencv) {
         console.log('当前平台不支持自动下载 OpenCV');
-        delete process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD;
         return;
     }
 
-    if (process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD !== '1') {
+    if (!existsSync(join(__dirname, '.prebuilt'))) {
         console.log('自动构建 OpenCV，不再检查是否配置了 OpenCV');
         process.exit(0);
     }
@@ -205,20 +206,6 @@ async function checkOpenCV() {
 
 })().then(() => {
     console.log('配置完成！');
-    return new Promise((resolve) => {
-        const cp = spawn('npm.cmd', ['install'], {
-            env: process.env,
-            cwd: __dirname,
-            stdio: 'inherit'
-        });
-        cp.on('close', (code) => {
-            resolve(code);
-        }).on('error', (err) => {
-            resolve(err);
-        }).on('exit', (code) => {
-            resolve(code);
-        });
-    });
 }).catch(e => {
     console.error(e);
     process.exit(1);
