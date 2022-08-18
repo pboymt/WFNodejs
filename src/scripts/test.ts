@@ -40,7 +40,7 @@ export class TestScript extends BaseScript {
                 }
                 // 等待战斗结束
                 if (!await this.wait_for_battle_finish()) {
-                    break;
+                    // break;
                 }
                 // 等待返回铃铛队伍
                 if (!await this.wait_for_return_to_ring_team()) {
@@ -123,7 +123,7 @@ export class TestScript extends BaseScript {
         logger.debug('等待战斗结束');
         while (await this.target('btn-battle-auto-skill-on').exists()) {
             if (await this.target('buyback').exists()) {
-                logger.info('战斗失败，不再续战');
+                logger.info('战斗失败，不再续战，但有可能战斗胜利');
                 return false;
             }
             await setTimeout(5000);
