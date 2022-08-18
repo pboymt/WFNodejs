@@ -40,7 +40,10 @@
   },
   "pkg": {
     "scripts": "app/**/*.js",
-    "assets": ["target/**/*"],
+    "assets": [
+      "target/**/*",
+      "node_modules/@u4/opencv-build/opencv*/build/lib/libopencv_*"
+    ],
     "targets": [
       "node16"
     ],
