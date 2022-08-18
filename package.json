@@ -37,5 +37,13 @@
     "moment": "^2.29.4",
     "reflect-metadata": "^0.1.13",
     "sharp": "^0.30.7"
+  },
+  "pkg": {
+    "scripts": "app/**/*.js",
+    "assets": ["target/**/*"],
+    "targets": [
+      "node16"
+    ],
+    "outputPath": "dist"
   }
 }
