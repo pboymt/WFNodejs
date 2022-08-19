@@ -68,10 +68,10 @@ if (process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD === '1') {
 
     try {
 
-        if (existsSync('node_modules/@u4/opencv4nodejs/build/Release/opencv4nodejs.node')) {
-            console.log('opencv4nodejs.node 已被编译过，不需要重新编译');
-            process.exit(0);
-        }
+        // if (existsSync('node_modules/@u4/opencv4nodejs/build/Release/opencv4nodejs.node')) {
+        //     console.log('opencv4nodejs.node 已被编译过，不需要重新编译');
+        //     process.exit(0);
+        // }
 
         const npm_cmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
