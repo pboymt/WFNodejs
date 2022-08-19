@@ -1,8 +1,8 @@
-import { imread, Mat, TM_CCOEFF_NORMED } from "@u4/opencv4nodejs";
+import { imdecode, Mat, TM_CCOEFF_NORMED } from "@u4/opencv4nodejs";
 import { randomInt } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Device } from "../adb";
-import { logger } from "../utils/logger";
 
 const TARGET_DIR = join(__dirname, '../../../target');
 
@@ -23,7 +23,7 @@ export class Target {
         private readonly device: Device,
         private readonly filename: string
     ) {
-        this.image = imread(join(TARGET_DIR, `${filename}.png`));
+        this.image = imdecode(readFileSync(join(TARGET_DIR, `${filename}.png`)));
     }
 
     get width(): number {
