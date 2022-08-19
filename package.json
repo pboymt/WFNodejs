@@ -24,9 +24,10 @@
     "@types/npmlog": "^4.1.4",
     "@types/sharp": "^0.30.4",
     "express": "^4.18.1",
+    "pkg": "^5.8.0",
     "sass": "^1.54.0",
-    "typescript": "^4.7.4",
-    "sharp": "^0.30.7"
+    "sharp": "^0.30.7",
+    "typescript": "^4.7.4"
   },
   "dependencies": {
     "@u4/adbkit": "^4.1.1",
