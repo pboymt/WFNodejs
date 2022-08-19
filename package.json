@@ -25,7 +25,8 @@
     "@types/sharp": "^0.30.4",
     "express": "^4.18.1",
     "sass": "^1.54.0",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "sharp": "^0.30.7"
   },
   "dependencies": {
     "@u4/adbkit": "^4.1.1",
@@ -35,17 +36,18 @@
     "inquirer": "^8.2.4",
     "log4js": "^6.6.1",
     "moment": "^2.29.4",
-    "reflect-metadata": "^0.1.13",
-    "sharp": "^0.30.7"
+    "reflect-metadata": "^0.1.13"
   },
   "pkg": {
     "scripts": "app/**/*.js",
     "assets": [
       "target/**/*",
-      "node_modules/@u4/opencv-build/opencv*/build/lib/libopencv_*"
+      "node_modules/@u4/opencv-build/opencv*/build/lib/libopencv_*",
+      "node_modules/@u4/opencv-build/opencv*/auto-build.json",
+      "node_modules/@u4/opencv-build/opencv*/build/x64/vc17/bin/*.dll"
     ],
     "targets": [
-      "node16"
+      "latest"
     ],
     "outputPath": "dist"
   }
