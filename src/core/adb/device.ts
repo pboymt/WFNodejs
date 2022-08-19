@@ -115,13 +115,33 @@ export class Device extends DeviceClient {
     }
 
     async appCurrent(): Promise<{ package_name: string, activity: string }> {
-        const dumpsys = await this.execOut(['dumpsys', 'window'], 'utf-8');
-        const m_current = /mCurrentFocus=Window\{.*\s+(?<package>[^\s]+)\/(?<activity>[^\s]+)\}/.exec(dumpsys);
-        const package_name = m_current?.groups?.package ?? '';
-        const activity = m_current?.groups?.activity ?? '';
+        let dumpsys = await this.execOut(['dumpsys', 'window', 'windows'], 'utf-8');
+        let m_current = /mCurrentFocus=Window\{.*\s+(?<package>[^\s]+)\/(?<activity>[^\s]+)\}/.exec(dumpsys);
+        if (m_current) {
+            return {
+                package_name: m_current.groups?.package ?? '',
+                activity: m_current.groups?.activity ?? ''
+            };
+        }
+        dumpsys = await this.execOut(['dumpsys', 'activity', 'activities'], 'utf-8');
+        m_current = /mResumedActivity: ActivityRecord\{.*?\s+(?<package>[^\s]+)\/(?<activity>[^\s]+)\s.*?\}/.exec(dumpsys);
+        let package_name: string = '';
+        if (m_current) {
+            package_name = m_current.groups?.package ?? '';
+        }
+        dumpsys = await this.execOut(['dumpsys', 'activity', 'top'], 'utf-8');
+        const m_current_array = dumpsys.matchAll(/ACTIVITY (?<package>[^\s]+)\/(?<activity>[^/\s]+) \w+ pid=(?<pid>\d+)/g);
+        for (const m of m_current_array) {
+            if (m.groups?.package === package_name) {
+                return {
+                    package_name,
+                    activity: m.groups?.activity ?? ''
+                };
+            }
+        }
         return {
             package_name,
-            activity
+            activity: ''
         }
     }
 

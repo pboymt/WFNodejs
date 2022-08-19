@@ -1,6 +1,5 @@
-import { getLogger, Logger } from "log4js";
 import { setTimeout } from "timers/promises";
-import { LTargets, Targets } from "../../scripts/_targets";
+import { Targets } from "../../scripts/_targets";
 import { Device } from "../adb";
 import { Target } from "../image/target";
 import { logger } from "../utils/logger";
@@ -47,6 +46,7 @@ export abstract class BaseScript {
         logger.debug('等待应用启动');
         while (true) {
             const current_package = await this.device.appCurrent();
+            logger.debug(`当前应用: ${current_package.package_name}`);
             if (current_package.package_name === this.package_name) {
                 break;
             }
