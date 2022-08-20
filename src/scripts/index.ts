@@ -1,0 +1,1 @@
+export { TestScript } from './ring';

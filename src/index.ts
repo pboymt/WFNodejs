@@ -23,37 +23,9 @@ program
     .name('wfa')
     .version('0.0.1')
     .description('WFNodejs 是一个运行于 Node.js 的游戏自动化脚本，目前可用于世界弹射物语（国服）。')
-    .command('shot', '（开发用）从选定的设备上截图并保存到本地');
+    .command('shot', '（开发用）从选定的设备上截图并保存到本地')
+    .command('play', '运行指定脚本');
 
-const cmd_play = program
-    .command('play')
-    .description('运行指定脚本')
-    .option('-l, --list', '列出所有脚本', false)
-    .action(async (options: { list: boolean }, command: Command) => {
-        if (options.list) {
-            console.log(`脚本列表：`);
-            for (const script of ScriptList) {
-                console.log(`  ${script.name} - ${script.description}`);
-            }
-            return;
-        }
-        command.outputHelp();
-    });
-
-LoadScripts([TestScript]);
-
-for (const script of ScriptList) {
-    const sub_command = new Command(script.name)
-        .description(script.description)
-        .option('-d, --device <device>', '设备 ID 或 ADB 网络地址')
-        .action(async (options: Pick<CShotOptions, 'device'>) => {
-            const device = await chooseDevice(options.device);
-            if (device) {
-                await play(script.script, { device });
-            }
-        });
-    cmd_play.addCommand(sub_command);
-}    
 
 program
     .command('connect')
