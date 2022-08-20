@@ -115,7 +115,7 @@ export class Device extends DeviceClient {
     }
 
     async appCurrent(): Promise<{ package_name: string, activity: string }> {
-        let dumpsys = await this.execOut(['dumpsys', 'window', 'windows'], 'utf-8');
+        let dumpsys = await this.execOut(['dumpsys', 'window'], 'utf-8');
         let m_current = /mCurrentFocus=Window\{.*\s+(?<package>[^\s]+)\/(?<activity>[^\s]+)\}/.exec(dumpsys);
         if (m_current) {
             return {

@@ -1,4 +1,4 @@
-import { AdbOptions, createClient as ADBCreateClient, Client as ADBClient, DeviceClient, ClientOptions } from "@u4/adbkit";
+import { AdbOptions, Client as ADBClient, ClientOptions } from "@u4/adbkit";
 import { Device } from "./device";
 
 export class Client extends ADBClient {
