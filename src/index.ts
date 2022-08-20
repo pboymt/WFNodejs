@@ -22,7 +22,8 @@ interface CShotOptions {
 program
     .name('wfa')
     .version('0.0.1')
-    .description('WFNodejs 是一个运行于 Node.js 的游戏自动化脚本，目前可用于世界弹射物语（国服）。');
+    .description('WFNodejs 是一个运行于 Node.js 的游戏自动化脚本，目前可用于世界弹射物语（国服）。')
+    .command('shot', '（开发用）从选定的设备上截图并保存到本地');
 
 const cmd_play = program
     .command('play')
@@ -52,26 +53,7 @@ for (const script of ScriptList) {
             }
         });
     cmd_play.addCommand(sub_command);
-}
-
-program
-    .command('shot')
-    .argument('[filename]', 'filename of screenshot', (v, p) => v ?? moment().format('YYYYMMDD-HHmmss'))
-    .option('-d, --device <id>', 'device id')
-    .option('-s, --save-dir <dir>', 'save directory', join(__dirname, '..', 'screenshot'))
-    .description('（开发用）从选定的设备上截图并保存到本地')
-    .action(async (filename: string | undefined, options: CShotOptions) => {
-        try {
-            const device = await chooseDevice(options.device);
-            if (device) {
-                const filepath = join(options.saveDir, filename ? `${filename}.png` : `${moment().format('YYYYMMDD-HHmmss')}.png`);
-                const img = await device.screenshot(false);
-                await writeFile(filepath, img);
-            }
-        } catch (error) {
-            logger.error(error);
-        }
-    });
+}    
 
 program
     .command('connect')
