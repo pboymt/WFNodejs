@@ -10,7 +10,7 @@ configure({
             type: 'console',
             layout: {
                 type: 'pattern',
-                pattern: '%[[%d{yyyy-MM-dd hh:mm:ss}][%p][%c]%] %m',
+                pattern: '%[[%d{yyyy/MM/dd hh:mm:ss}][%0.1p][%c]%] %m',
             },
         },
         logfile: {
