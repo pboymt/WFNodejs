@@ -21,7 +21,7 @@ interface CShotOptions {
 
 program
     .name('wfa')
-    .version('0.0.1')
+    .version(require('../package.json').version ?? 'unknown')
     .description('WFNodejs 是一个运行于 Node.js 的游戏自动化脚本，目前可用于世界弹射物语（国服）。')
     .command('shot', '（开发用）从选定的设备上截图并保存到本地')
     .command('play', '运行指定脚本')
