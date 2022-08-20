@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Device } from "../adb";
 
-const TARGET_DIR = join(__dirname, '../../../target');
+export const TARGET_DIR = join(__dirname, '../../../target');
 
 export interface Point {
     x: number;

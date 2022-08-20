@@ -1,9 +1,8 @@
 import { readdir } from "node:fs/promises";
 import { basename, join } from "node:path";
-
-const TARGET_DIR = join(__dirname, '../../../target');
+import { TARGET_DIR } from "./target";
 
 export async function listTargets(): Promise<string[]> {
-    const list = await readdir(join(__dirname, '..', 'target'));
+    const list = await readdir(TARGET_DIR);
     return list.map(f => basename(f, '.png'));
 }

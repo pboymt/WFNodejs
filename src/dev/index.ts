@@ -1,7 +1,7 @@
 import { readdir, watch, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
+import { TARGET_DIR } from '../core/image/target';
 
-const TARGET_DIR = join(__dirname, '../../target');
 const TARGET_LIST_FILE = join(__dirname, '../../src/scripts/_targets.ts');
 
 function debounce(fn: () => void, delay: number) {
