@@ -1,18 +1,23 @@
 import "./core/utils/env";
 import 'reflect-metadata';
 import { logger } from "./core/utils/logger";
-import { program } from 'commander';
+import { Command, program } from 'commander';
 import moment from 'moment';
 import { readdir, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { createClient, Device } from './core/adb';
-import { play } from "./core/script";
-import { TestScript } from "./scripts/test";
+import { LoadScripts, play, ScriptList } from "./core/script";
+import { TestScript } from "./scripts/ring";
 import { chooseDevice } from "./core/adb/choose";
 import { listTargets } from "./core/image/list";
 import { Target } from "./core/image/target";
 import { watchTargetsAndGenerateTargetInterface } from "./dev";
 import { test } from "./test";
+
+interface CShotOptions {
+    device?: string;
+    saveDir: string;
+}
 
 program
     .name('wfa')
@@ -21,18 +26,32 @@ program
 
 const cmd_play = program
     .command('play')
-    .description('运行脚本')
-    .option('-d, --device <device>', 'Device serial number.')
-    .action(async (options: Pick<CShotOptions, 'device'>) => {
-        const device = await chooseDevice(options.device);
-        if (device) {
-            await play(TestScript, { device });
+    .description('运行指定脚本')
+    .option('-l, --list', '列出所有脚本', false)
+    .action(async (options: { list: boolean }, command: Command) => {
+        if (options.list) {
+            console.log(`脚本列表：`);
+            for (const script of ScriptList) {
+                console.log(`  ${script.name} - ${script.description}`);
+            }
+            return;
         }
+        command.outputHelp();
     });
 
-interface CShotOptions {
-    device?: string;
-    saveDir: string;
+LoadScripts([TestScript]);
+
+for (const script of ScriptList) {
+    const sub_command = new Command(script.name)
+        .description(script.description)
+        .option('-d, --device <device>', '设备 ID 或 ADB 网络地址')
+        .action(async (options: Pick<CShotOptions, 'device'>) => {
+            const device = await chooseDevice(options.device);
+            if (device) {
+                await play(script.script, { device });
+            }
+        });
+    cmd_play.addCommand(sub_command);
 }
 
 program

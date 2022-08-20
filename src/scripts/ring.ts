@@ -2,16 +2,21 @@ import { getLogger } from "log4js";
 import { setTimeout } from "node:timers/promises";
 import { Device } from "../core/adb";
 import { BaseScript } from "../core/script";
+import { RegisterScript } from "../core/script/register";
 import { LTargets, Targets } from "./_targets";
 
-const logger = getLogger('test');
+const logger = getLogger('ring');
 
+@RegisterScript({
+    name: 'ring',
+    description: '铃铛',
+    options: []
+})
 export class TestScript extends BaseScript {
 
-    script_name = 'test';
     package_name = 'com.leiting.wf';
 
-    constructor(options: { device: Device }) {
+    constructor(options: { device: Device, test: string }) {
         super(options);
     }
 

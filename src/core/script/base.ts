@@ -4,9 +4,10 @@ import { Device } from "../adb";
 import { Target } from "../image/target";
 import { logger } from "../utils/logger";
 
+export type Script = new (options: any) => BaseScript;
+
 export abstract class BaseScript {
 
-    abstract script_name: string;
     abstract package_name: string;
     protected device: Device;
     private map_target = new Map<Targets, Target>();
