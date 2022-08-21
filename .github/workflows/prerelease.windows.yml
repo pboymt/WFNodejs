@@ -27,7 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - name: 删除 .prebuilt 文件
-      run: rm -rf .prebuilt
+      run: remove-item .prebuilt
     - name: 安装依赖
       run: npm ci
     - name: 构建 TypeScript 代码
