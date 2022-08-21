@@ -59,9 +59,14 @@ export class Target {
         return minMax.maxVal > threshold;
     }
 
-    async click(): Promise<void> {
+    async click(): Promise<boolean> {
         const { x, y } = await this.find();
-        await this.device.click(randomInt(x, x + this.width), randomInt(y, y + this.height));
+        if (x < 0 || y < 0) {
+            return false;
+        } else {
+            await this.device.click(randomInt(x, x + this.width), randomInt(y, y + this.height));
+            return true;
+        }
     }
 
 }
