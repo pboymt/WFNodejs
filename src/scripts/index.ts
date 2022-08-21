@@ -1,1 +1,1 @@
-export { TestScript } from './ring';
+export { RingScript } from './ring';

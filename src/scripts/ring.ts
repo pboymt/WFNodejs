@@ -1,22 +1,30 @@
+import { createOption, Option } from "commander";
 import { getLogger } from "log4js";
 import { setTimeout } from "node:timers/promises";
 import { Device } from "../core/adb";
-import { BaseScript } from "../core/script";
+import { BaseOptions, BaseScript } from "../core/script";
 import { RegisterScript } from "../core/script/register";
 import { LTargets, Targets } from "./_targets";
 
 const logger = getLogger('ring');
 
+interface TestOptions extends BaseOptions {
+    stamina: boolean;
+}
+
 @RegisterScript({
     name: 'ring',
     description: '铃铛',
-    options: []
+    options: [
+        createOption('--stamina', '计算耗时').default(true),
+        createOption('-0, --no-stamina', '白嫖模式，不开启自动续战')
+    ]
 })
-export class TestScript extends BaseScript {
+export class RingScript extends BaseScript {
 
     package_name = 'com.leiting.wf';
 
-    constructor(options: { device: Device, test: string }) {
+    constructor(private options: TestOptions) {
         super(options);
     }
 
@@ -34,9 +42,15 @@ export class TestScript extends BaseScript {
             await this.open_ring_window();
             while (true) {
                 // 接受铃铛
-                await this.accept_ring();
+                if (!await this.accept_ring()) {
+                    break;
+                }
                 // 开启自动续战
-                await this.enable_auto_continue();
+                if (this.options.stamina) {
+                    await this.enable_auto_continue();
+                } else {
+                    await this.disable_auto_continue();
+                }
                 // 点击准备完毕
                 await this.set_ready();
                 // 等待战斗
@@ -47,9 +61,13 @@ export class TestScript extends BaseScript {
                 if (!await this.wait_for_battle_finish()) {
                     // break;
                 }
-                // 等待返回铃铛队伍
-                if (!await this.wait_for_return_to_ring_team()) {
-                    break;
+                if (this.options.stamina) {
+                    // 等待返回铃铛队伍
+                    if (!await this.wait_for_return_to_ring_team()) {
+                        break;
+                    }
+                } else {
+                    await this.wait_for_return_home();
                 }
             }
         }
@@ -69,19 +87,25 @@ export class TestScript extends BaseScript {
         logger.debug('尝试打开铃铛窗口');
         while (!await this.target('btn-ring-join-accept').exists()) {
             await this.target('ring').click();
-            await setTimeout(1500);
+            await setTimeout(2500);
         }
         logger.info('打开铃铛窗口');
     }
 
-    @BaseScript.use('waiting-room-team-form', 'btn-ring-join-accept')
-    async accept_ring(): Promise<void> {
+    @BaseScript.use('waiting-room-team-form', 'btn-ring-join-accept', 'btn-ok')
+    async accept_ring(): Promise<boolean> {
         logger.debug('尝试接受铃铛');
         while (!await this.target('waiting-room-team-form').exists()) {
+            if (await this.target('btn-ok').exists() || await this.target('home-btn-chapter').exists()) {
+                logger.info('无法接受铃铛，可能已经解散或开始');
+                await this.target('btn-ok').click();
+                return false;
+            }
             await this.target('btn-ring-join-accept').click();
-            await setTimeout(1500);
+            await setTimeout(2500);
         }
         logger.info('接受铃铛组队');
+        return true;
     }
 
     @BaseScript.use('waiting-room-auto-continue-no')
@@ -92,6 +116,16 @@ export class TestScript extends BaseScript {
             await setTimeout(1500);
         }
         logger.info('开启自动续战');
+    }
+
+    @BaseScript.use('waiting-room-auto-continue-yes')
+    async disable_auto_continue(): Promise<void> {
+        logger.debug('尝试关闭自动续战');
+        while (await this.target('waiting-room-auto-continue-yes').exists()) {
+            await this.target('waiting-room-auto-continue-yes').click();
+            await setTimeout(1500);
+        }
+        logger.info('关闭自动续战');
     }
 
     @BaseScript.use('waiting-room-ready-no')
@@ -153,6 +187,19 @@ export class TestScript extends BaseScript {
             await setTimeout(2000);
         }
         logger.info('返回铃铛队伍');
+        return true;
+    }
+
+    @BaseScript.use('btn-leave-room', 'home-btn-chapter', 'btn-continue', 'btn-ok')
+    async wait_for_return_home(): Promise<boolean> {
+        logger.info('等待返回主页');
+        while (!await this.target('home-btn-chapter').exists()) {
+            if (await this.target('btn-leave-room').click()) continue;
+            if (await this.target('btn-continue').click()) continue;
+            if (await this.target('btn-ok').click()) continue;
+            await setTimeout(1500);
+        }
+        logger.info('返回主页');
         return true;
     }
 
