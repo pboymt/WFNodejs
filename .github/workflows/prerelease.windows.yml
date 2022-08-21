@@ -1,46 +1,46 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Windows平台的预发布流程
+# name: Windows平台的预发布流程
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+# on:
+#   push:
+#     branches: [ "master" ]
+#   pull_request:
+#     branches: [ "master" ]
 
-jobs:
-  build:
+# jobs:
+#   build:
 
-    runs-on: windows-latest
+#     runs-on: windows-latest
 
-    strategy:
-      matrix:
-        node-version: [current]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+#     strategy:
+#       matrix:
+#         node-version: [current]
+#         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    steps:
-    - uses: actions/checkout@v3
-    - name: 使用 Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - name: 删除 .prebuilt 文件
-      run: remove-item .prebuilt
-    - name: 安装依赖
-      run: npm ci
-    - name: 构建 TypeScript 代码
-      run: npx tsc
-    - name: 使用 pkg 进行打包
-      run: npx pkg . --no-native-build
-    - name: 自动发布 Pre-Release
-      uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "dev"
-        prerelease: true
-        title: "开发构建"
-        files: |
-          dist/*
+#     steps:
+#     - uses: actions/checkout@v3
+#     - name: 使用 Node.js ${{ matrix.node-version }}
+#       uses: actions/setup-node@v3
+#       with:
+#         node-version: ${{ matrix.node-version }}
+#         cache: 'npm'
+#     - name: 删除 .prebuilt 文件
+#       run: remove-item .prebuilt
+#     - name: 安装依赖
+#       run: npm ci
+#     - name: 构建 TypeScript 代码
+#       run: npx tsc
+#     - name: 使用 pkg 进行打包
+#       run: npx pkg . --no-native-build
+#     - name: 自动发布 Pre-Release
+#       uses: "marvinpinto/action-automatic-releases@latest"
+#       with:
+#         repo_token: "${{ secrets.GITHUB_TOKEN }}"
+#         automatic_release_tag: "dev"
+#         prerelease: true
+#         title: "开发构建"
+#         files: |
+#           dist/*
 
