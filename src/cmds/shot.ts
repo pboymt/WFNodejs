@@ -16,7 +16,7 @@ cmd
     .description('（开发用）从选定的设备上截图并保存到本地')
     .argument('[filename]', 'filename of screenshot', (v, p) => v ?? moment().format('YYYYMMDD-HHmmss'))
     .option('-d, --device <id>', 'device id')
-    .option('-s, --save-dir <dir>', 'save directory', join(__dirname, '..', 'screenshot'))
+    .option('-s, --save-dir <dir>', 'save directory', join(__dirname, '../..', 'screenshot'))
     .action(async (filename: string | undefined, options: CShotOptions) => {
         try {
             const device = await chooseDevice(options.device);
