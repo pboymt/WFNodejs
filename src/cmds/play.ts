@@ -1,12 +1,14 @@
-import { Command, program } from "commander";
-import 'reflect-metadata';
-import { logger } from "../core/utils/logger";
+import { Command } from "commander";
 import { chooseDevice } from "../core/adb";
 import { LoadScripts, play, ScriptList } from "../core/script";
+import { logger } from "../core/utils/logger";
 import { TestScript } from "../scripts";
 import { CShotOptions } from "./shot";
 
-const cmd_play = program
+const cmd = new Command('play');
+
+const cmd_play = cmd
+    .description('运行指定脚本')
     .option('-l, --list', '列出所有脚本', false)
     .action(async (options: { list: boolean }, command: Command) => {
         if (options.list) {
@@ -32,6 +34,6 @@ for (const script of ScriptList) {
             }
         });
     cmd_play.addCommand(sub_command);
-}    
+}
 
-program.parse();
+export default cmd;

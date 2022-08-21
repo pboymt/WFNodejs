@@ -1,4 +1,4 @@
-import { program } from "commander";
+import { Command } from "commander";
 import { writeFile } from "fs/promises";
 import moment from "moment";
 import { join } from "path";
@@ -10,7 +10,10 @@ export interface CShotOptions {
     saveDir: string;
 }
 
-program
+const cmd = new Command('shot');
+
+cmd
+    .description('（开发用）从选定的设备上截图并保存到本地')
     .argument('[filename]', 'filename of screenshot', (v, p) => v ?? moment().format('YYYYMMDD-HHmmss'))
     .option('-d, --device <id>', 'device id')
     .option('-s, --save-dir <dir>', 'save directory', join(__dirname, '..', 'screenshot'))
@@ -27,4 +30,4 @@ program
         }
     });
 
-program.parse();
+export default cmd;

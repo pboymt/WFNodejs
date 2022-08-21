@@ -1,28 +1,28 @@
-import { Command, program } from "commander";
-import { basename } from "node:path";
-import { logger } from "../core/utils/logger";
+import { Command } from "commander";
 import { chooseDevice } from "../core/adb";
 import { listTargets } from "../core/image/list";
 import { Target } from "../core/image/target";
+import { logger } from "../core/utils/logger";
 import { watchTargetsAndGenerateTargetInterface } from "../dev";
 import { CShotOptions } from "./shot";
 
-// program.action(async (command: Command) => {
-//     command.outputHelp();
-// });
+const cmd = new Command('dev');
 
-program
+cmd
+    .description('一些开发用指令，不要在正式环境使用');
+
+cmd
     .command('test')
     .description('测试指令')
     .action(async () => {
         logger.debug('暂时没有什么用');
     });
 
-const program_template = program
+const cmd_template = cmd
     .command('template')
     .description('图片模板的开发指令');
 
-program_template
+cmd_template
     .command('list')
     .description('列出所有模板')
     .action(async () => {
@@ -32,7 +32,7 @@ program_template
         }
     });
 
-program_template
+cmd_template
     .command('find <name>')
     .description('在选定设备的当前屏幕画面中查找指定模板')
     .option('-d, --device <id>', '设备 ID')
@@ -52,11 +52,11 @@ program_template
         }
     });
 
-program_template
+cmd_template
     .command('watch')
     .description('生成所有模板')
     .action(async () => {
         await watchTargetsAndGenerateTargetInterface();
     });
 
-program.parse();
+export default cmd;
