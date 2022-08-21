@@ -51,5 +51,9 @@
       "latest"
     ],
     "outputPath": "dist"
+  },
+  "opencv4nodejs": {
+    "autoBuildWithoutContrib": false,
+    "autoBuildFlags": "-DBUILD_LIST=core,imgproc,imgcodecs"
   }
 }
