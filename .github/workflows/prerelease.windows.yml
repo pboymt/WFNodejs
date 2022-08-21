@@ -26,9 +26,21 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - name: 删除 .prebuilt 文件
+      run: rm -rf .prebuilt
     - name: 安装依赖
       run: npm ci
     - name: 构建 TypeScript 代码
       run: npx tsc
     - name: 使用 pkg 进行打包
       run: npx pkg --no-native-build
+    - name: 自动发布 Pre-Release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "dev"
+        prerelease: true
+        title: "开发构建"
+        files: |
+          dist/*
+
