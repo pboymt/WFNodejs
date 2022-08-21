@@ -45,7 +45,8 @@
       "target/**/*",
       "node_modules/@u4/opencv-build/opencv*/build/lib/libopencv_*",
       "node_modules/@u4/opencv-build/opencv*/auto-build.json",
-      "node_modules/@u4/opencv-build/opencv*/build/x64/vc17/bin/*.dll"
+      "node_modules/@u4/opencv-build/opencv*/build/x64/vc17/bin/*.dll",
+      "node_modules/@u4/opencv4nodejs/build/*/opencv4nodejs.node"
     ],
     "targets": [
       "latest"
