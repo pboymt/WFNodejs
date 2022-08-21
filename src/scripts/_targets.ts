@@ -17,7 +17,10 @@ export interface LTargets {
     'boss-target-whitetail': Target;
     'btn-battle-auto-skill-on': Target;
     'btn-cancel': Target;
+    'btn-continue': Target;
+    'btn-leave-room': Target;
     'btn-ok': Target;
+    'btn-return-room': Target;
     'btn-ring-join-accept': Target;
     'btn-ring-join-reject': Target;
     'btn-stamina-l': Target;
