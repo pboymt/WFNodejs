@@ -6,6 +6,10 @@ import { logger } from "../utils/logger";
 
 export type Script = new (options: any) => BaseScript;
 
+export interface BaseOptions {
+    device: Device;
+}
+
 export abstract class BaseScript {
 
     abstract package_name: string;
