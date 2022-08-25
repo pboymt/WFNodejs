@@ -15,6 +15,7 @@ export interface LTargets {
     'boss-target-orochi': Target;
     'boss-target-regitare': Target;
     'boss-target-whitetail': Target;
+    'btn-battle-again': Target;
     'btn-battle-auto-skill-on': Target;
     'btn-cancel': Target;
     'btn-continue': Target;
@@ -23,14 +24,18 @@ export interface LTargets {
     'btn-return-room': Target;
     'btn-ring-join-accept': Target;
     'btn-ring-join-reject': Target;
+    'btn-single-battle-start': Target;
     'btn-stamina-l': Target;
     'btn-stamina-m': Target;
     'btn-stamina-p': Target;
     'btn-stamina-s': Target;
+    'btn-use': Target;
     'buyback': Target;
     'finish-alert-lost-connection': Target;
     'finish-alert-team-dismiss': Target;
     'home-btn-chapter': Target;
+    'label-lack-stamina': Target;
+    'label-stamina-ok': Target;
     'ring': Target;
     'waiting-room-auto-continue-no': Target;
     'waiting-room-auto-continue-yes': Target;
