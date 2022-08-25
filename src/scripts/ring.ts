@@ -8,7 +8,7 @@ import { LTargets, Targets } from "./_targets";
 
 const logger = getLogger('ring');
 
-interface TestOptions extends BaseOptions {
+interface RingOptions extends BaseOptions {
     stamina: boolean;
 }
 
@@ -16,7 +16,7 @@ interface TestOptions extends BaseOptions {
     name: 'ring',
     description: '铃铛',
     options: [
-        createOption('--stamina', '计算耗时').default(true),
+        createOption('--stamina', '自动回复体力').default(true),
         createOption('-0, --no-stamina', '白嫖模式，不开启自动续战')
     ]
 })
@@ -24,7 +24,7 @@ export class RingScript extends BaseScript {
 
     package_name = 'com.leiting.wf';
 
-    constructor(private options: TestOptions) {
+    constructor(private options: RingOptions) {
         super(options);
     }
 
