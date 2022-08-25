@@ -140,7 +140,7 @@ Commands:
 
 ## 例子
 
-目前只支持运行铃铛脚本， `wfa play` 即可运行。
+目前支持铃铛和单人挑战，使用 `wfa play --list` 命令可查看所有支持脚本。
 
 ```pwsh
 PS WFNodejs> wfa play
