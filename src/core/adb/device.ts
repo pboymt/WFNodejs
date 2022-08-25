@@ -149,4 +149,8 @@ export class Device extends DeviceClient {
         await this.execOut([`input`, `keyevent`, `26`]);
     }
 
+    toString() {
+        return `[Device: ${this.serial}]`;
+    }
+
 }
