@@ -163,11 +163,17 @@ export class SingleScript extends BaseScript {
         return true;
     }
 
-    @BaseScript.use('btn-continue')
+    @BaseScript.use('btn-continue', 'label-level-up')
     async wait_for_battle_finished() {
         logger.debug('等待战斗结束');
         while (!await this.target('btn-continue').exists()) {
-            await setTimeout(2000);
+            await setTimeout(3000);
+            if (await this.target('label-level-up').click()) {
+                logger.info('升级了');
+                break;
+            } else {
+                await setTimeout(2000);
+            }
         }
         logger.info('战斗结束');
     }

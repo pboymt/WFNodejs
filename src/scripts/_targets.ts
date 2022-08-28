@@ -35,6 +35,7 @@ export interface LTargets {
     'finish-alert-team-dismiss': Target;
     'home-btn-chapter': Target;
     'label-lack-stamina': Target;
+    'label-level-up': Target;
     'label-stamina-ok': Target;
     'ring': Target;
     'waiting-room-auto-continue-no': Target;
