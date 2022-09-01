@@ -114,7 +114,7 @@ export class Device extends DeviceClient {
         return /mHoldingDisplaySuspendBlocker=true/.test(dumpsys);
     }
 
-    async appCurrent(): Promise<{ package_name: string, activity: string }> {
+    async appCurrentOld(): Promise<{ package_name: string, activity: string }> {
         let dumpsys = await this.execOut(['dumpsys', 'window'], 'utf-8');
         let m_current = /mCurrentFocus=Window\{.*\s+(?<package>[^\s]+)\/(?<activity>[^\s]+)\}/.exec(dumpsys);
         if (m_current) {
@@ -143,6 +143,15 @@ export class Device extends DeviceClient {
             package_name,
             activity: ''
         }
+    }
+
+    async appCurrent(): Promise<{ package_name: string, activity: string }> {
+        const dumpsys = await this.execOut(['dumpsys', 'activity', 'activities'], 'utf-8');
+        const m_current = /mResumedActivity: ActivityRecord\{.*?\s+(?<package>[^\s]+)\/(?<activity>[^\s]+)\s.*?\}/.exec(dumpsys);
+        return {
+            package_name: m_current?.groups?.package ?? '',
+            activity: m_current?.groups?.activity ?? ''
+        };
     }
 
     async toggleScreen(): Promise<void> {
