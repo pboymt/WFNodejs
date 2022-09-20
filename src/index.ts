@@ -1,7 +1,7 @@
 import { program } from 'commander';
 import './core/utils/logger';
 import 'reflect-metadata';
-import { CmdConnect, CmdDev, CmdPlay, CmdShot } from "./cmds";
+import { CmdConnect, CmdDev, CmdPlay, CmdShot, CmdWeb } from "./cmds";
 import "./core/utils/env";
 
 program
@@ -11,6 +11,9 @@ program
     .addCommand(CmdConnect)
     .addCommand(CmdDev)
     .addCommand(CmdPlay)
-    .addCommand(CmdShot);
+    .addCommand(CmdShot)
+    .addCommand(CmdWeb);
 
-program.parse();
+program.parseAsync()
+    .catch(console.error)
+    .finally(() => process.exit(0));
