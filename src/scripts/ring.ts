@@ -9,20 +9,44 @@ import { LTargets, Targets } from "./_targets";
 const logger = getLogger('ring');
 
 interface RingOptions extends BaseOptions {
-    stamina: boolean;
+    stamina: boolean | number;
+    stones: boolean;
+    count: number;
 }
+
+
+const STAMINA_TYPES = {
+    'l': '体力回复药（大）',
+    'm': '体力回复药（中）',
+    's': '体力回复药（小）',
+    'p': '星导石×50'
+}
+
+type STAMINA_TYPE = keyof typeof STAMINA_TYPES;
 
 @RegisterScript({
     name: 'ring',
     description: '铃铛',
     options: [
-        createOption('--stamina', '自动回复体力').default(true),
-        createOption('-0, --no-stamina', '白嫖模式，不开启自动续战')
+        createOption('-0, --no-stamina', '白嫖模式，不开启自动续战'),
+        createOption('--stamina [times]', '自动回复体力').default(true).argParser((value) => {
+            const parsed = parseInt(value);
+            if (Number.isNaN(parsed) || parsed < 1) {
+                return false;
+            } else {
+                return parsed;
+            }
+        }),
+        createOption('--stones', '使用星导石').default(false),
+        createOption('--no-stones', '不使用星导石'),
     ]
 })
 export class RingScript extends BaseScript {
 
     package_name = 'com.leiting.wf';
+
+    play_count = 0;
+    stamina_count = 0;
 
     constructor(private options: RingOptions) {
         super(options);
@@ -58,8 +82,9 @@ export class RingScript extends BaseScript {
                     break;
                 }
                 // 等待战斗结束
-                if (!await this.wait_for_battle_finish()) {
-                    // break;
+                if (await this.wait_for_battle_finish()) {
+                    this.play_count++;
+                    logger.info(`已完成 ${this.play_count} 次战斗`);
                 }
                 if (this.options.stamina) {
                     // 等待返回铃铛队伍
@@ -73,6 +98,9 @@ export class RingScript extends BaseScript {
         }
     }
 
+    /**
+     * 等待铃铛
+     */
     @BaseScript.use('ring')
     async wait_for_ring(): Promise<void> {
         logger.info('等待铃铛');
@@ -82,6 +110,9 @@ export class RingScript extends BaseScript {
         logger.info('发现铃铛');
     }
 
+    /**
+     * 打开铃铛窗口
+     */
     @BaseScript.use('ring', 'btn-ring-join-accept')
     async open_ring_window(): Promise<void> {
         logger.debug('尝试打开铃铛窗口');
@@ -92,6 +123,9 @@ export class RingScript extends BaseScript {
         logger.info('打开铃铛窗口');
     }
 
+    /**
+     * 接受铃铛
+     */
     @BaseScript.use('waiting-room-team-form', 'btn-ring-join-accept', 'btn-ok')
     async accept_ring(): Promise<boolean> {
         logger.debug('尝试接受铃铛');
@@ -108,6 +142,9 @@ export class RingScript extends BaseScript {
         return true;
     }
 
+    /**
+     * 尝试开启自动续战
+     */
     @BaseScript.use('waiting-room-auto-continue-no')
     async enable_auto_continue(): Promise<void> {
         logger.debug('尝试开启自动续战');
@@ -118,6 +155,9 @@ export class RingScript extends BaseScript {
         logger.info('开启自动续战');
     }
 
+    /**
+     * 尝试关闭自动续战
+     */
     @BaseScript.use('waiting-room-auto-continue-yes')
     async disable_auto_continue(): Promise<void> {
         logger.debug('尝试关闭自动续战');
@@ -128,6 +168,9 @@ export class RingScript extends BaseScript {
         logger.info('关闭自动续战');
     }
 
+    /**
+     * 尝试点击准备完毕
+     */
     @BaseScript.use('waiting-room-ready-no')
     async set_ready(): Promise<void> {
         logger.debug('尝试点击准备完毕');
@@ -138,6 +181,9 @@ export class RingScript extends BaseScript {
         logger.info('点击准备完毕');
     }
 
+    /**
+     * 等待战斗
+     */
     @BaseScript.use('btn-battle-auto-skill-on', 'btn-ok', 'home-btn-chapter')
     async wait_for_battle(): Promise<boolean> {
         logger.info('等待战斗');
@@ -157,6 +203,11 @@ export class RingScript extends BaseScript {
         return true;
     }
 
+    /**
+     * 等待战斗结束
+     * 
+     * @returns 返回是否胜利
+     */
     @BaseScript.use('btn-battle-auto-skill-on', 'buyback')
     async wait_for_battle_finish(): Promise<boolean> {
         logger.debug('等待战斗结束');
@@ -171,10 +222,34 @@ export class RingScript extends BaseScript {
         return true;
     }
 
-    @BaseScript.use('waiting-room-team-form', 'btn-ok', 'home-btn-chapter')
+    /**
+     * 等待返回铃铛队伍
+     */
+    @BaseScript.use('waiting-room-team-form', 'btn-ok', 'home-btn-chapter', 'label-lack-stamina')
     async wait_for_return_to_ring_team(): Promise<boolean> {
         logger.info('等待返回铃铛队伍');
         while (!await this.target('waiting-room-team-form').exists()) {
+            if (await this.target('label-lack-stamina').exists()) {
+                logger.info('体力不足');
+                if (this.options.stamina) {
+                    logger.debug('设置为：自动回复体力');
+                    if (this.options.stamina === true ||
+                        (typeof this.options.stamina === 'number' && this.stamina_count < this.options.stamina)) {
+                        const result = await this.add_stamina();
+                        if (result) {
+                            this.stamina_count++;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        logger.info('超过设置的最大回复次数，退出');
+                        return false;
+                    }
+                } else {
+                    logger.info('不自动回复体力，退出');
+                    return false;
+                }
+            }
             if (await this.target('btn-ok').exists()) {
                 logger.info('队伍被解散，需要关闭对话框');
                 await this.target('btn-ok').click();
@@ -190,6 +265,9 @@ export class RingScript extends BaseScript {
         return true;
     }
 
+    /**
+     * 等待返回主页
+     */
     @BaseScript.use('btn-leave-room', 'home-btn-chapter', 'btn-continue', 'btn-ok')
     async wait_for_return_home(): Promise<boolean> {
         logger.info('等待返回主页');
@@ -200,6 +278,52 @@ export class RingScript extends BaseScript {
             await setTimeout(1500);
         }
         logger.info('返回主页');
+        return true;
+    }
+
+    @BaseScript.use('btn-stamina-l', 'btn-stamina-m', 'btn-stamina-s',
+        'btn-stamina-p', 'btn-use', 'label-stamina-ok', 'btn-ok')
+    async add_stamina(high_priority: STAMINA_TYPE = 's') {
+        logger.debug('回复体力');
+        const priority: STAMINA_TYPE[] = ['s', 'm', 'l', 'p'];
+        if (!this.options.stones) {
+            priority.splice(priority.indexOf('p'), 1);
+        }
+        if (high_priority !== 's') {
+            priority.splice(priority.indexOf(high_priority), 1);
+            priority.unshift(high_priority);
+        }
+        let result = false;
+        let stamina_type: string = 'unknown';
+        for (const type of priority) {
+            const item = this.target(`btn-stamina-${type}`);
+            if (await item.exists()) {
+                result = await item.click();
+                await setTimeout(2000);
+                if (result) {
+                    stamina_type = STAMINA_TYPES[type];
+                    logger.info(`使用 ${stamina_type}`);
+                    break;
+                }
+            }
+        }
+        if (!result) {
+            logger.warn('无法回复体力');
+            return false;
+        }
+        while (!await this.target('btn-use').exists()) {
+            logger.debug('等待使用确认');
+            await setTimeout(2000);
+        }
+        while (!await this.target('label-stamina-ok').exists()) {
+            await this.target('btn-use').click();
+            await setTimeout(2000);
+        }
+        logger.info(`${stamina_type} 使用完毕`);
+        while (await this.target('label-stamina-ok').exists()) {
+            await this.target('btn-ok').click();
+            await setTimeout(2000);
+        }
         return true;
     }
 
