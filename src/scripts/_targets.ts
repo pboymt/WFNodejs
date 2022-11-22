@@ -15,6 +15,7 @@ export interface LTargets {
     'boss-target-orochi': Target;
     'boss-target-regitare': Target;
     'boss-target-whitetail': Target;
+    'btn-back': Target;
     'btn-battle-again': Target;
     'btn-battle-auto-skill-on': Target;
     'btn-cancel': Target;
@@ -38,6 +39,13 @@ export interface LTargets {
     'label-level-up': Target;
     'label-stamina-ok': Target;
     'ring': Target;
+    'story-chara-new': Target;
+    'story-close': Target;
+    'story-item-new': Target;
+    'story-list-chara': Target;
+    'story-list-title': Target;
+    'story-skip-ok': Target;
+    'story-skip': Target;
     'waiting-room-auto-continue-no': Target;
     'waiting-room-auto-continue-yes': Target;
     'waiting-room-ready-no': Target;

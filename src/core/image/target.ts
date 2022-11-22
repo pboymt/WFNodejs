@@ -59,8 +59,8 @@ export class Target {
         return minMax.maxVal > threshold;
     }
 
-    async click(): Promise<boolean> {
-        const { x, y } = await this.find();
+    async click(threshold: number = 0.9): Promise<boolean> {
+        const { x, y } = await this.find(threshold);
         if (x < 0 || y < 0) {
             return false;
         } else {

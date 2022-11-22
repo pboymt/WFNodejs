@@ -2,7 +2,7 @@ import { Command } from "commander";
 import { chooseDevice } from "../core/adb";
 import { LoadScripts, play, ScriptList } from "../core/script";
 import { logger } from "../core/utils/logger";
-import { RingScript, SingleScript } from "../scripts";
+import { RingScript, SingleScript, StoryScript } from "../scripts";
 import { CShotOptions } from "./shot";
 
 const cmd = new Command('play');
@@ -21,7 +21,7 @@ const cmd_play = cmd
         command.outputHelp();
     });
 
-LoadScripts([RingScript, SingleScript]);
+LoadScripts([RingScript, SingleScript, StoryScript]);
 
 for (const script of ScriptList) {
     const sub_command = new Command(script.name)
