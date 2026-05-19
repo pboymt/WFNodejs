@@ -33,7 +33,7 @@
     "vue-router": "^4.1.5"
   },
   "dependencies": {
-    "@u4/adbkit": "^4.1.11",
+    "@u4/adbkit": "^4.1.20",
     "@u4/opencv4nodejs": "^6.2.1",
     "commander": "^9.4.0",
     "dotenv": "^16.0.1",
